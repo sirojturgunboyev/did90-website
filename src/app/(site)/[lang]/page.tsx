@@ -24,6 +24,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
     <>
       <Hero title={home.heroTitle || "DID90"} tagline={home.heroTagline || ""} cardImage={settings?.lanyardCard} strapImage={settings?.lanyardStrap} />
       <Clients clients={home.clients} />
+      <div data-nav-collapse aria-hidden />
       <About lead={home.aboutLead} text={home.aboutText} />
       <ProjectsShowcase lang={lang} title={home.projectsTitle} subtitle={home.projectsSubtitle} featured={home.featured} latest={home.latest} />
       <Stats text={home.statsText} stats={home.stats ?? []} />

@@ -44,10 +44,14 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
   ];
   const items = ticker.length ? ticker : ["DID90° Agency"];
 
-  // Collapse into the dark pill once the visitor scrolls past most of the first screen (template "Collapsed Dark" variant)
+  // Collapse into the dark pill (template "Collapsed Dark" variant) once the marker placed after the
+  // client logos has scrolled under the navbar; pages without the marker use 60% of the first screen.
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    const onScroll = () => {
+      const marker = document.querySelector("[data-nav-collapse]");
+      setScrolled(marker ? marker.getBoundingClientRect().top < 70 : window.scrollY > window.innerHeight * 0.6);
+    };
     const first = setTimeout(onScroll, 0);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
