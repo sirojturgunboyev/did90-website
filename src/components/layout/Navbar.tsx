@@ -121,10 +121,10 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
             </div>
           </div>
 
-          {/* Right: tabs, contact, language */}
-          <div className="hidden shrink-0 items-center gap-[18px] tablet:flex">
+          {/* Right: tabs (contact is a regular tab), divider, language */}
+          <div className="hidden shrink-0 items-center gap-2.5 tablet:flex">
             <ul className="flex items-center gap-4 text-nav-m">
-              {links.slice(0, 4).map((l) => (
+              {[...links.slice(0, 4), { href: localePath(lang, "/contact"), label: dict.contact }].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="transition-opacity hover:opacity-60">
                     {l.label}
@@ -132,13 +132,8 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
                 </li>
               ))}
             </ul>
-            <div className="flex items-center gap-2.5">
-              <Link href={localePath(lang, "/contact")} className="rounded-[5px] bg-grey-03 px-3.5 py-1.5 text-nav-m transition-colors hover:bg-white">
-                {dict.contact}
-              </Link>
-              <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
-              <LanguageMenu current={lang} />
-            </div>
+            <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
+            <LanguageMenu current={lang} />
           </div>
 
           <button
