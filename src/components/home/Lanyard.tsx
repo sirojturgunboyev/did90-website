@@ -286,7 +286,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           </group>
         </RigidBody>
       </group>
-      <mesh ref={band}>
+      <mesh ref={band} frustumCulled={false}>
         <meshLineGeometry />
         <meshLineMaterial
           color={strapTexture ? "white" : strapColor}
