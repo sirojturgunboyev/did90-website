@@ -1,0 +1,8 @@
+{
+  "nav": { "about": "About", "projects": "Projects", "services": "Services", "process": "Process", "blog": "Blog", "contact": "Contact", "home": "Home", "menu": "Menu", "close": "Close", "contactUs": "Contact us" },
+  "projects": { "all": "All", "loadMore": "Load more", "view": "View", "year": "Year", "client": "Client", "category": "Category", "website": "Website", "about": "About the project", "next": "Next project", "back": "Back" },
+  "contact": { "name": "Your name*", "namePh": "Full name", "email": "E-mail*", "emailPh": "hello@gmail.com", "message": "Message*", "messagePh": "Your message", "submit": "Submit", "sending": "Sending…", "success": "Thank you! We’ll get back to you soon.", "error": "Something went wrong. Please try again." },
+  "footer": { "rights": "All rights reserved", "backToTop": "Back to top", "credit": "Design based on Drkst® by Danny" },
+  "blog": { "title": "Blog", "readMore": "Read", "back": "All articles" },
+  "notFound": { "title": "Page not found", "back": "Back to home" }
+}

@@ -1,0 +1,8 @@
+{
+  "nav": { "about": "О нас", "projects": "Проекты", "services": "Услуги", "process": "Процесс", "blog": "Блог", "contact": "Контакты", "home": "Главная", "menu": "Меню", "close": "Закрыть", "contactUs": "Связаться" },
+  "projects": { "all": "Все", "loadMore": "Показать ещё", "view": "Смотреть", "year": "Год", "client": "Клиент", "category": "Направление", "website": "Сайт", "about": "О проекте", "next": "Следующий проект", "back": "Назад" },
+  "contact": { "name": "Ваше имя*", "namePh": "Имя Фамилия", "email": "E-mail*", "emailPh": "hello@gmail.com", "message": "Сообщение*", "messagePh": "Ваше сообщение", "submit": "Отправить", "sending": "Отправка…", "success": "Спасибо! Мы скоро ответим.", "error": "Произошла ошибка. Попробуйте ещё раз." },
+  "footer": { "rights": "Все права защищены", "backToTop": "Наверх", "credit": "Основа дизайна: Drkst® by Danny" },
+  "blog": { "title": "Блог", "readMore": "Читать", "back": "Все статьи" },
+  "notFound": { "title": "Страница не найдена", "back": "Вернуться на главную" }
+}

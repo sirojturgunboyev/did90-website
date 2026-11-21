@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter/opsz.css";
+
+/* Design tokens, taken 1:1 from the Drkst Framer project */
+@theme {
+  --color-black: #030303;
+  --color-grey-01: #696969;
+  --color-grey-02: #d6d6d6;
+  --color-grey-03: #f2f2f2;
+  --color-light-grey: #eaeaea;
+  --color-white: #ffffff;
+  --color-orange: #e37d09;
+  --color-blue: #096fe3;
+  --color-red: #e30909;
+  --color-green: #31e309;
+
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-display: "Inter Variable", system-ui, sans-serif;
+  --font-geist: var(--font-geist-sans), "Inter Variable", sans-serif;
+
+  --breakpoint-tablet: 810px;
+  --breakpoint-desktop: 1200px;
+
+  --radius-card: 10px;
+  --ease-reveal: cubic-bezier(0.44, 0, 0.56, 1);
+  --ease-loader: cubic-bezier(0.5, 0, 0.88, 0.77);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+}
+
+::selection {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* ---------- Text styles (Framer presets) ---------- */
+@utility display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 32;
+  font-weight: 400;
+}
+@utility text-h1 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 32;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.16em;
+  letter-spacing: -0.05em;
+  @media (min-width: 810px) { font-size: 36px; }
+  @media (min-width: 1200px) { font-size: 40px; }
+}
+@utility text-h2 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 32;
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.12em;
+  letter-spacing: -0.04em;
+  @media (min-width: 810px) { font-size: 44px; }
+  @media (min-width: 1200px) { font-size: 40px; }
+}
+@utility text-h3 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 32;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.3em;
+  letter-spacing: -0.03em;
+  @media (min-width: 810px) { font-size: 32px; }
+}
+@utility text-logo {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 32;
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 0.9em;
+  letter-spacing: -0.05em;
+  @media (min-width: 810px) { font-size: 25px; }
+}
+@utility text-body {
+  font-size: 16px;
+  line-height: 1.15em;
+  letter-spacing: -0.03em;
+}
+@utility text-body-xl {
+  font-size: 18px;
+  line-height: 1.4em;
+  letter-spacing: -0.03em;
+  @media (min-width: 810px) { font-size: 20px; letter-spacing: -0.04em; }
+}
+@utility text-body-l {
+  font-size: 18px;
+  line-height: 1.1em;
+  letter-spacing: -0.03em;
+}
+@utility text-nav-s {
+  font-size: 14px;
+  line-height: 1.06em;
+  letter-spacing: -0.03em;
+}
+@utility text-nav-m {
+  font-size: 15px;
+  line-height: 1.26em;
+  letter-spacing: -0.02em;
+}
+@utility text-small {
+  font-size: 12px;
+  line-height: 1.2em;
+  letter-spacing: -0.02em;
+}
+
+/* Rich text from Sanity */
+@layer components {
+  .prose-did h2 { @apply text-h3 mt-10 mb-3; }
+  .prose-did h3 { @apply text-body-l font-semibold mt-8 mb-2; }
+  .prose-did p { @apply text-body-l mb-4; line-height: 1.45em; }
+  .prose-did ul { @apply mb-4 list-disc pl-5; }
+  .prose-did a { @apply underline; }
+  .prose-did img { @apply my-6 rounded-[10px]; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes ticker-x {
+  to { transform: translateX(calc(-50% - var(--gap, 5px))); }
+}
+@keyframes ticker-y {
+  to { transform: translateY(calc(-50% - var(--gap, 5px))); }
+}

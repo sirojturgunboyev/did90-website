@@ -1,0 +1,8 @@
+{
+  "nav": { "about": "Biz haqimizda", "projects": "Loyihalar", "services": "Xizmatlar", "process": "Jarayon", "blog": "Blog", "contact": "Aloqa", "home": "Bosh sahifa", "menu": "Menyu", "close": "Yopish", "contactUs": "Bog‘lanish" },
+  "projects": { "all": "Barchasi", "loadMore": "Yana ko‘rsatish", "view": "Ko‘rish", "year": "Yil", "client": "Mijoz", "category": "Yo‘nalish", "website": "Veb-sayt", "about": "Loyiha haqida", "next": "Keyingi loyiha", "back": "Orqaga" },
+  "contact": { "name": "Ismingiz*", "namePh": "Ism Familiya", "email": "E-mail*", "emailPh": "salom@gmail.com", "message": "Xabar*", "messagePh": "Xabaringiz", "submit": "Yuborish", "sending": "Yuborilmoqda…", "success": "Rahmat! Tez orada javob beramiz.", "error": "Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring." },
+  "footer": { "rights": "Barcha huquqlar himoyalangan", "backToTop": "Yuqoriga", "credit": "Dizayn asosi: Drkst® by Danny" },
+  "blog": { "title": "Blog", "readMore": "O‘qish", "back": "Barcha maqolalar" },
+  "notFound": { "title": "Sahifa topilmadi", "back": "Bosh sahifaga qaytish" }
+}
