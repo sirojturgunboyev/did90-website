@@ -7,7 +7,7 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, extend, useFrame, type ThreeElement } from "@react-three/fiber";
-import { Environment, Lightformer, useTexture } from "@react-three/drei";
+import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import {
   BallCollider,
   CuboidCollider,
@@ -51,7 +51,7 @@ export default function Lanyard({ cardImage, strapImage, strapColor = "#D6D6D6",
   return (
     <div ref={wrap} className="absolute inset-0">
       <Canvas
-        camera={{ position: [0, 0, 15], fov: 25 }}
+        camera={{ position: [0, 0, 15], fov: 20 }}
         dpr={[1, 1.75]}
         gl={{ alpha: true, antialias: true }}
         frameloop={visible ? "always" : "never"}
@@ -72,132 +72,85 @@ export default function Lanyard({ cardImage, strapImage, strapColor = "#D6D6D6",
 }
 
 type Body = React.RefObject<RapierRigidBody>;
-const CARD_W = 2;
-const CARD_H = 2.8;
-const CARD_D = 0.018;
-const HOOK = 0.62; // distance from card top edge to the top of the D-ring
-const HOLE = 0.19; // punched hole distance from the card top edge
 
-function makeFallbackTexture() {
-  const c = document.createElement("canvas");
-  c.width = 1000;
-  c.height = 1400;
-  const ctx = c.getContext("2d")!;
-  const g = ctx.createLinearGradient(0, 0, 0, c.height);
+/** Badge model (card, clip, clamp) from the template's Lanyard component, hosted on Sanity CDN. */
+const CARD_GLB_URL = "https://cdn.sanity.io/files/qeffq8u8/production/9afde76381bf1035ea3930954af70350d05f14e2.glb";
+const CARD_IMAGE_HEIGHT_SCALE = 0.757;
+useGLTF.preload(CARD_GLB_URL);
+
+/** Cover-fit an image into a w×h box. */
+function fit(iw: number, ih: number, w: number, h: number) {
+  const ia = iw / ih;
+  if (ia > w / h) {
+    const width = h * ia;
+    return { x: (w - width) / 2, y: 0, width, height: h };
+  }
+  const height = w / ia;
+  return { x: 0, y: (h - height) / 2, width: w, height };
+}
+
+/** Default DID90° front: dark gradient with the logo near the bottom. */
+function paintDefaultFront(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, "#1c1c1c");
-  g.addColorStop(1, "#050505");
+  g.addColorStop(1, "#030303");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, c.width, c.height);
-  // DID90° mark near the bottom, like the template badge
+  ctx.fillRect(0, 0, w, h);
+  const lw = w * 0.3;
   ctx.save();
-  const w = 300;
-  ctx.translate((c.width - w) / 2, 1080);
-  ctx.scale(w / 1606, w / 1606);
+  ctx.translate((w - lw) / 2, h * 0.78);
+  ctx.scale(lw / 1606, lw / 1606);
   ctx.fillStyle = "#ffffff";
   LOGO_PATHS.forEach((d) => ctx.fill(new Path2D(d)));
   ctx.restore();
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
 }
 
-/** Flat rounded rectangle with 0..1 UVs, used for the printed faces of the card. */
-function useFaceGeometry() {
+/**
+ * The model's UVs use a square texture: left half = front face, right half = back.
+ * Front shows the uploaded image (or the default DID90° design).
+ */
+function useCardTexture(frontUrl?: string | null) {
+  const [img, setImg] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    if (!frontUrl) return;
+    const i = new Image();
+    i.crossOrigin = "anonymous";
+    i.onload = () => setImg(i);
+    i.src = frontUrl.includes("cdn.sanity.io") ? `${frontUrl}?w=1024&auto=format` : frontUrl;
+  }, [frontUrl]);
+
   return useMemo(() => {
-    const w = CARD_W, h = CARD_H, r = 0.08;
-    const shape = new THREE.Shape();
-    shape.moveTo(-w / 2 + r, -h / 2);
-    shape.lineTo(w / 2 - r, -h / 2);
-    shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-    shape.lineTo(w / 2, h / 2 - r);
-    shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-    shape.lineTo(-w / 2 + r, h / 2);
-    shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-    shape.lineTo(-w / 2, -h / 2 + r);
-    shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-    const geo = new THREE.ShapeGeometry(shape, 12);
-    const pos = geo.attributes.position;
-    const uv = new Float32Array(pos.count * 2);
-    for (let i = 0; i < pos.count; i++) {
-      uv[i * 2] = (pos.getX(i) + w / 2) / w;
-      uv[i * 2 + 1] = (pos.getY(i) + h / 2) / h;
+    const res = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = res;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(0, 0, res, res);
+    const fw = res / 2;
+    const fh = res * CARD_IMAGE_HEIGHT_SCALE;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, fw, fh);
+    ctx.clip();
+    if (img) {
+      const d = fit(img.naturalWidth, img.naturalHeight, fw, fh);
+      ctx.drawImage(img, d.x, d.y, d.width, d.height);
+    } else {
+      paintDefaultFront(ctx, fw, fh);
     }
-    geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-    const body = new THREE.ExtrudeGeometry(shape, { depth: CARD_D, bevelEnabled: false, curveSegments: 12 });
-    body.translate(0, 0, -CARD_D / 2);
-    return { face: geo, body };
-  }, []);
-}
-
-/** Swivel D-ring + snap hook that passes through the card's punched hole (metal). */
-function Clasp() {
-  const top = CARD_H / 2;
-  const hookPath = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, top + 0.29, 0),
-        new THREE.Vector3(0.035, top + 0.12, 0),
-        new THREE.Vector3(0.03, top - 0.08, 0),
-        new THREE.Vector3(0.01, top - HOLE - 0.05, 0),
-        new THREE.Vector3(-0.035, top - HOLE - 0.03, 0),
-        new THREE.Vector3(-0.045, top - HOLE + 0.04, 0),
-        new THREE.Vector3(-0.03, top - HOLE + 0.11, 0),
-      ]),
-    [top],
-  );
-  const gatePath = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, top + 0.24, 0),
-        new THREE.Vector3(-0.035, top + 0.06, 0),
-        new THREE.Vector3(-0.03, top - HOLE + 0.11, 0),
-      ]),
-    [top],
-  );
-  const metal = <meshStandardMaterial color="#e4e4e4" metalness={1} roughness={0.22} />;
-  return (
-    <group>
-      {/* D-ring the strap loops through */}
-      <mesh position={[0, top + 0.52, 0]} scale={[1, 0.82, 1]}>
-        <torusGeometry args={[0.15, 0.024, 16, 64]} />
-        {metal}
-      </mesh>
-      {/* swivel barrel */}
-      <mesh position={[0, top + 0.36, 0]}>
-        <cylinderGeometry args={[0.05, 0.075, 0.11, 32]} />
-        {metal}
-      </mesh>
-      <mesh position={[0, top + 0.42, 0]}>
-        <sphereGeometry args={[0.045, 24, 16]} />
-        {metal}
-      </mesh>
-      {/* hook body (flattened) and spring gate */}
-      <mesh scale={[1, 1, 0.6]}>
-        <tubeGeometry args={[hookPath, 48, 0.026, 12, false]} />
-        {metal}
-      </mesh>
-      <mesh scale={[1, 1, 0.6]}>
-        <tubeGeometry args={[gatePath, 24, 0.012, 8, false]} />
-        {metal}
-      </mesh>
-    </group>
-  );
-}
-
-function CardFace({ url }: { url?: string | null }) {
-  const tex = useMemo(() => (url ? null : makeFallbackTexture()), [url]);
-  if (url) return <LoadedFace url={url} />;
-  return <meshBasicMaterial map={tex!} toneMapped={false} />;
-}
-
-function LoadedFace({ url }: { url: string }) {
-  const map = useTexture(url, (t) => {
-    const tex = Array.isArray(t) ? t[0] : t;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
-  });
-  return <meshBasicMaterial map={map} toneMapped={false} />;
+    ctx.restore();
+    // back: plain dark with small logo
+    ctx.save();
+    ctx.translate(fw, 0);
+    paintDefaultFront(ctx, fw, fh);
+    ctx.restore();
+    const t = new THREE.CanvasTexture(canvas);
+    t.flipY = false;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = 16;
+    return t;
+  }, [img]);
 }
 
 function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strapColor">> & Pick<Props, "cardImage" | "strapImage">) {
@@ -222,7 +175,8 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
   const [isWide, setIsWide] = useState(true);
-  const { face, body } = useFaceGeometry();
+  const { nodes } = useGLTF(CARD_GLB_URL) as unknown as { nodes: Record<string, THREE.Mesh> };
+  const cardTexture = useCardTexture(cardImage);
 
   const strapTexture = useMemo(() => {
     if (!strapImage) return null;
@@ -243,7 +197,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
   useRopeJoint(fixed as Body, j1 as Body, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1 as Body, j2 as Body, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2 as Body, j3 as Body, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3 as Body, card as Body, [[0, 0, 0], [0, CARD_H / 2 + HOOK, 0]]);
+  useSphericalJoint(j3 as Body, card as Body, [[0, 0, 0], [0, 1.5, 0]]);
 
   useEffect(() => {
     if (!hovered) return;
@@ -284,7 +238,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
 
   return (
     <>
-      <group position={[0, 4.6, 0]}>
+      <group position={[0, 4, 0]}>
         <RigidBody ref={fixed} {...segment} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segment}>
           <BallCollider args={[0.1]} />
@@ -296,7 +250,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segment} type={dragged ? "kinematicPosition" : "dynamic"}>
-          <CuboidCollider args={[CARD_W / 2, CARD_H / 2, CARD_D]} />
+          <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
@@ -309,24 +263,17 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current!.translation() as THREE.Vector3)));
             }}
           >
-            {/* card body (thin, matte) */}
-            <mesh geometry={body}>
-              <meshBasicMaterial color="#0a0a0a" />
-            </mesh>
-            <mesh geometry={face} position={[0, 0, CARD_D / 2 + 0.001]}>
-              <CardFace url={cardImage} />
-            </mesh>
-            <mesh geometry={face} position={[0, 0, -CARD_D / 2 - 0.001]} rotation={[0, Math.PI, 0]}>
-              <meshBasicMaterial color="#111111" />
-            </mesh>
-            {/* punched hole for the hook */}
-            {[1, -1].map((side) => (
-              <mesh key={side} position={[0, CARD_H / 2 - HOLE, (side * CARD_D) / 2 + side * 0.002]} rotation={[0, side === 1 ? 0 : Math.PI, 0]}>
-                <circleGeometry args={[0.055, 32]} />
-                <meshBasicMaterial color="#ffffff" />
+            <group scale={2.25} position={[0, -1.2, -0.05]}>
+              <mesh geometry={nodes.card.geometry}>
+                <meshPhysicalMaterial map={cardTexture} clearcoat={1} clearcoatRoughness={0.15} roughness={0.9} metalness={0.8} />
               </mesh>
-            ))}
-            <Clasp />
+              <mesh geometry={nodes.clip.geometry}>
+                <meshPhysicalMaterial color="#f2f2f2" roughness={0.3} metalness={0.8} />
+              </mesh>
+              <mesh geometry={nodes.clamp.geometry}>
+                <meshPhysicalMaterial color="#f2f2f2" roughness={0.3} metalness={0.8} />
+              </mesh>
+            </group>
           </group>
         </RigidBody>
       </group>
@@ -339,7 +286,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           useMap={strapTexture ? 1 : 0}
           map={strapTexture ?? undefined}
           repeat={[-4, 1]}
-          lineWidth={0.42}
+          lineWidth={1}
         />
       </mesh>
     </>
