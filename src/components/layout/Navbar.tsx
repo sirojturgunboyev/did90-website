@@ -100,7 +100,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
         >
           {/* Left: logo … ticker badge | divider | clock */}
           <div className="flex min-w-0 flex-1 items-center gap-[3px]">
-            <Logo href={home} className="mr-auto shrink-0 pl-1" />
+            <Logo href={home} className="mr-auto shrink-0 pl-1 pr-4" />
             <div className="hidden min-w-0 items-center gap-[3px] desktop:flex">
               <div className="relative h-7 w-[260px] min-w-[120px] shrink overflow-hidden rounded-[10px] bg-white text-nav-s text-grey-01 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
                 <div className="flex h-full items-center">
