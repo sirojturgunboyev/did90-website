@@ -21,8 +21,9 @@ function ServiceRow({ title, images }: { title: string; images: Home["services"]
   const list = images?.length ? images : [null];
   // Framer: each card scrolls up over the sticky dark panel and shrinks to 0.9 as it reaches the viewport middle.
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["center end", "center center"] });
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  // Stays full width while it covers the panel's middle row, then shrinks once its top passes the viewport middle.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start center", "start start"] });
+  const scale = useTransform(scrollYProgress, [0, 0.45], [1, 0.9]);
   return (
     <motion.div
       ref={ref}
@@ -58,7 +59,7 @@ export function Services({ title, left, right, services }: { title?: string; lef
       {/* Sticky dark panel; the service cards below scroll up over it. */}
       <div data-cursor="dot" className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden rounded-[10px] bg-black px-5 text-white">
         <Corners />
-        <p className="absolute top-14 text-body-l">{title}</p>
+        <p className="absolute top-5 text-body-l">{title}</p>
         <div className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">
           <span>{left}</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
