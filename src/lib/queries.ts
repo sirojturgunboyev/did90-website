@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
+import { sanityFetch } from "@/sanity/fetch";
 import type { Locale } from "@/i18n/config";
 
 /** GROQ helper: picks the requested language, falls back to uz → en → ru. */

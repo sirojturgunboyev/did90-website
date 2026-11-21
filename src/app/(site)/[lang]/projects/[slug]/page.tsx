@@ -7,7 +7,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { getProject, getProjectSlugs } from "@/lib/queries";
 import { SanityImg } from "@/components/ui/SanityImg";
 import { Reveal } from "@/components/ui/Reveal";
-import { urlFor } from "@/sanity/client";
+import { urlFor } from "@/sanity/image";
 
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs().catch(() => [] as string[]);

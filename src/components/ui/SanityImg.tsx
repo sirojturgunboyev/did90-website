@@ -1,4 +1,4 @@
-import { urlFor } from "@/sanity/client";
+import { urlFor } from "@/sanity/image";
 import type { SanityImage } from "@/lib/queries";
 
 type Props = {
