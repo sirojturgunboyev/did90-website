@@ -229,6 +229,9 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     curve.points[2].copy(lerped.current.j1);
     curve.points[3].copy(fixed.current.translation() as THREE.Vector3);
     band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
+    // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
+    const res = band.current.material.resolution;
+    if (res.x !== state.size.width || res.y !== state.size.height) res.set(state.size.width, state.size.height);
 
     // Keep the card facing the camera
     ang.copy(card.current.angvel() as THREE.Vector3);
