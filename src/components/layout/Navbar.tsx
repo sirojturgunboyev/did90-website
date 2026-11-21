@@ -96,7 +96,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
           animate={{ opacity: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, filter: "blur(4px)" }}
           transition={{ duration: 0.25 }}
-          className="flex items-center gap-2.5"
+          className="flex items-center gap-4"
         >
           {/* Left: logo … ticker badge | divider | clock */}
           <div className="flex min-w-0 flex-1 items-center gap-[3px]">
@@ -123,7 +123,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
           </div>
 
           {/* Right: tabs (contact is a regular tab), divider, language */}
-          <div className="hidden shrink-0 items-center gap-2.5 tablet:flex">
+          <div className="hidden shrink-0 items-center gap-4 tablet:flex">
             <ul className="flex items-center gap-4 text-nav-m">
               {[...links.slice(0, 4), { href: localePath(lang, "/contact"), label: dict.contact }].map((l) => (
                 <li key={l.href}>
