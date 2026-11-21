@@ -75,7 +75,8 @@ type Body = React.RefObject<RapierRigidBody>;
 const CARD_W = 2;
 const CARD_H = 2.8;
 const CARD_D = 0.018;
-const HOOK = 0.55; // distance from card top edge to the swivel ring
+const HOOK = 0.62; // distance from card top edge to the top of the D-ring
+const HOLE = 0.19; // punched hole distance from the card top edge
 
 function makeFallbackTexture() {
   const c = document.createElement("canvas");
@@ -104,7 +105,7 @@ function makeFallbackTexture() {
 /** Flat rounded rectangle with 0..1 UVs, used for the printed faces of the card. */
 function useFaceGeometry() {
   return useMemo(() => {
-    const w = CARD_W, h = CARD_H, r = 0.16;
+    const w = CARD_W, h = CARD_H, r = 0.08;
     const shape = new THREE.Shape();
     shape.moveTo(-w / 2 + r, -h / 2);
     shape.lineTo(w / 2 - r, -h / 2);
@@ -129,30 +130,55 @@ function useFaceGeometry() {
   }, []);
 }
 
-/** Swivel ring + snap hook that holds the card (metal). */
+/** Swivel D-ring + snap hook that passes through the card's punched hole (metal). */
 function Clasp() {
-  const metal = <meshStandardMaterial color="#d9d9d9" metalness={1} roughness={0.28} />;
   const top = CARD_H / 2;
+  const hookPath = useMemo(
+    () =>
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, top + 0.29, 0),
+        new THREE.Vector3(0.035, top + 0.12, 0),
+        new THREE.Vector3(0.03, top - 0.08, 0),
+        new THREE.Vector3(0.01, top - HOLE - 0.05, 0),
+        new THREE.Vector3(-0.035, top - HOLE - 0.03, 0),
+        new THREE.Vector3(-0.045, top - HOLE + 0.04, 0),
+        new THREE.Vector3(-0.03, top - HOLE + 0.11, 0),
+      ]),
+    [top],
+  );
+  const gatePath = useMemo(
+    () =>
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, top + 0.24, 0),
+        new THREE.Vector3(-0.035, top + 0.06, 0),
+        new THREE.Vector3(-0.03, top - HOLE + 0.11, 0),
+      ]),
+    [top],
+  );
+  const metal = <meshStandardMaterial color="#e4e4e4" metalness={1} roughness={0.22} />;
   return (
     <group>
-      {/* swivel ring the strap passes through */}
-      <mesh position={[0, top + HOOK, 0]}>
-        <torusGeometry args={[0.13, 0.022, 16, 48]} />
+      {/* D-ring the strap loops through */}
+      <mesh position={[0, top + 0.52, 0]} scale={[1, 0.82, 1]}>
+        <torusGeometry args={[0.15, 0.024, 16, 64]} />
         {metal}
       </mesh>
       {/* swivel barrel */}
-      <mesh position={[0, top + HOOK - 0.19, 0]}>
-        <cylinderGeometry args={[0.045, 0.06, 0.12, 24]} />
+      <mesh position={[0, top + 0.36, 0]}>
+        <cylinderGeometry args={[0.05, 0.075, 0.11, 32]} />
         {metal}
       </mesh>
-      {/* hook shank */}
-      <mesh position={[0.03, top + HOOK - 0.36, 0]} rotation={[0, 0, -0.08]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.26, 16]} />
+      <mesh position={[0, top + 0.42, 0]}>
+        <sphereGeometry args={[0.045, 24, 16]} />
         {metal}
       </mesh>
-      {/* hook curve going through the card hole */}
-      <mesh position={[0, top - 0.06, 0]} rotation={[0, 0, Math.PI * 0.9]}>
-        <torusGeometry args={[0.055, 0.02, 12, 32, Math.PI * 1.4]} />
+      {/* hook body (flattened) and spring gate */}
+      <mesh scale={[1, 1, 0.6]}>
+        <tubeGeometry args={[hookPath, 48, 0.026, 12, false]} />
+        {metal}
+      </mesh>
+      <mesh scale={[1, 1, 0.6]}>
+        <tubeGeometry args={[gatePath, 24, 0.012, 8, false]} />
         {metal}
       </mesh>
     </group>
@@ -294,10 +320,12 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
               <meshBasicMaterial color="#111111" />
             </mesh>
             {/* punched hole for the hook */}
-            <mesh position={[0, CARD_H / 2 - 0.1, CARD_D / 2 + 0.002]}>
-              <circleGeometry args={[0.035, 24]} />
-              <meshBasicMaterial color="#ffffff" />
-            </mesh>
+            {[1, -1].map((side) => (
+              <mesh key={side} position={[0, CARD_H / 2 - HOLE, (side * CARD_D) / 2 + side * 0.002]} rotation={[0, side === 1 ? 0 : Math.PI, 0]}>
+                <circleGeometry args={[0.055, 32]} />
+                <meshBasicMaterial color="#ffffff" />
+              </mesh>
+            ))}
             <Clasp />
           </group>
         </RigidBody>
