@@ -17,7 +17,7 @@ export function LogoMark({ className = "" }: { className?: string }) {
 export function Logo({ href = "/", invert = false, className = "" }: { href?: string; invert?: boolean; className?: string }) {
   return (
     <Link href={href} className={`inline-flex items-center ${invert ? "text-white" : "text-black"} ${className}`} aria-label="DID90° Agency">
-      <LogoMark className="h-[17px] w-auto" />
+      <LogoMark className="h-[18px] w-auto" />
     </Link>
   );
 }

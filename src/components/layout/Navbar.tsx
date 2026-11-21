@@ -22,9 +22,9 @@ function Clock() {
     };
   }, []);
   return (
-    <span className="flex items-center gap-1.5 tabular-nums" suppressHydrationWarning>
+    <span className="flex items-center gap-[5px] tabular-nums" suppressHydrationWarning>
       {now || " "}
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
         <circle cx="8" cy="8" r="6.5" stroke="currentColor" />
         <path d="M8 4.5V8h3" stroke="currentColor" strokeLinecap="round" />
       </svg>
@@ -62,14 +62,15 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
   const collapsed = scrolled && !open;
   const spring = { type: "spring" as const, stiffness: 500, damping: 60, mass: 1 };
 
+  // Sizes follow the Framer "Navbar" component: 915px wide, 5/10px padding, radius 10, Grey 03 + 12px blur.
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+    <header className="pointer-events-none fixed inset-x-0 top-5 z-50 flex justify-center px-4">
       <motion.nav
         layout
         transition={spring}
-        animate={{ backgroundColor: collapsed ? "#030303" : "rgba(234,234,234,0.9)" }}
+        animate={{ backgroundColor: collapsed ? "#030303" : "#f2f2f2" }}
         style={{ borderRadius: 10 }}
-        className={`pointer-events-auto px-2.5 py-1.5 backdrop-blur-md ${collapsed ? "w-auto" : "w-full max-w-[920px]"}`}
+        className={`pointer-events-auto px-2.5 py-[5px] backdrop-blur-[12px] ${collapsed ? "w-auto" : "w-full max-w-[915px]"}`}
       >
         <AnimatePresence mode="popLayout" initial={false}>
         {collapsed ? (
@@ -80,10 +81,10 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
             animate={{ opacity: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, filter: "blur(4px)" }}
             transition={{ duration: 0.25 }}
-            className="flex items-center gap-10 py-[1px] pl-1.5"
+            className="flex items-center gap-[30px] pl-1"
           >
-            <Logo href={home} invert className="shrink-0 [&_svg]:h-[19px]" />
-            <Link href={localePath(lang, "/contact")} className="rounded-[6px] bg-grey-03 px-5 py-2 text-nav-m text-black transition-colors hover:bg-white">
+            <Logo href={home} invert className="shrink-0" />
+            <Link href={localePath(lang, "/contact")} className="rounded-[5px] bg-grey-03 px-3.5 py-1.5 text-nav-m text-black transition-colors hover:bg-white">
               {dict.contact}
             </Link>
           </motion.div>
@@ -95,42 +96,49 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
           animate={{ opacity: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, filter: "blur(4px)" }}
           transition={{ duration: 0.25 }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2.5"
         >
-          <Logo href={home} className="mr-auto shrink-0 px-1 tablet:mr-6" />
-
-          <div className="hidden min-w-0 flex-1 items-center gap-1.5 desktop:flex">
-            <div className="relative min-w-0 flex-1 rounded-[8px] bg-white py-1.5 text-nav-s text-grey-01 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-              <Ticker duration={18} gap={10}>
-                {items.map((t, i) => (
-                  <span key={i} className="whitespace-nowrap">
-                    <span className="text-black">{t}</span>
-                    <span className="mx-2">/</span>
-                  </span>
-                ))}
-              </Ticker>
+          {/* Left: logo … ticker badge | divider | clock */}
+          <div className="flex min-w-0 flex-1 items-center gap-[3px]">
+            <Logo href={home} className="mr-auto shrink-0 pl-1" />
+            <div className="hidden min-w-0 items-center gap-[3px] desktop:flex">
+              <div className="relative h-7 w-[260px] min-w-[120px] shrink overflow-hidden rounded-[10px] bg-white text-nav-s text-grey-01 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
+                <div className="flex h-full items-center">
+                  <Ticker duration={18} gap={10}>
+                    {items.map((t, i) => (
+                      <span key={i} className="whitespace-nowrap">
+                        <span className="text-black">{t}</span>
+                        <span className="mx-2">/</span>
+                      </span>
+                    ))}
+                  </Ticker>
+                </div>
+              </div>
+              <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
+              <span className="shrink-0 rounded-[10px] bg-white px-2.5 py-1.5 text-nav-s">
+                <Clock />
+              </span>
             </div>
-            <span className="h-6 w-[5px] rounded-full bg-grey-02" aria-hidden />
-            <span className="rounded-[8px] bg-white px-2.5 py-1.5 text-nav-m">
-              <Clock />
-            </span>
           </div>
 
-          <ul className="hidden items-center gap-3.5 pl-3 text-nav-m tablet:flex">
-            {links.slice(0, 4).map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="transition-opacity hover:opacity-60">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <Link href={localePath(lang, "/contact")} className="hidden rounded-[8px] px-3 py-1.5 text-nav-m transition-colors hover:bg-white tablet:block">
-            {dict.contact}
-          </Link>
-          <span className="hidden h-6 w-[5px] shrink-0 rounded-full bg-grey-02 tablet:block" aria-hidden />
-          <div className="hidden tablet:block">
-            <LanguageMenu current={lang} />
+          {/* Right: tabs, contact, language */}
+          <div className="hidden shrink-0 items-center gap-[18px] tablet:flex">
+            <ul className="flex items-center gap-4 text-nav-m">
+              {links.slice(0, 4).map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="transition-opacity hover:opacity-60">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-2.5">
+              <Link href={localePath(lang, "/contact")} className="rounded-[5px] bg-grey-03 px-3.5 py-1.5 text-nav-m transition-colors hover:bg-white">
+                {dict.contact}
+              </Link>
+              <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
+              <LanguageMenu current={lang} />
+            </div>
           </div>
 
           <button
