@@ -22,7 +22,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 
   return (
     <>
-      <Hero title={home.heroTitle || "DID90"} tagline={home.heroTagline || ""} cardImage={settings?.lanyardCard} strapImage={settings?.lanyardStrap} />
+      <Hero title={home.heroTitle || "DID90"} tagline={home.heroTagline || ""} cardImage={settings?.lanyardCard || "/lanyard-card.png"} strapImage={settings?.lanyardStrap} />
       <Clients clients={home.clients} />
       <About lead={home.aboutLead} text={home.aboutText} />
       <ProjectsShowcase lang={lang} title={home.projectsTitle} subtitle={home.projectsSubtitle} featured={home.featured} latest={home.latest} />

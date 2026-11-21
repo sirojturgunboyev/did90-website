@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Ticker } from "../ui/Ticker";
+import { LogoMark } from "./Logo";
 import { BackToTop } from "./BackToTop";
 import { localePath, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -60,12 +61,10 @@ export function Footer({
             </Ticker>
           </div>
 
-          <p
-            className="display select-none whitespace-nowrap py-10 text-center leading-[0.8] tracking-[-0.06em]"
-            style={{ fontSize: `min(${Math.round(110 / Math.max(wordmark.length, 4))}vw, 380px)` }}
-          >
-            {wordmark}
-          </p>
+          <div className="px-2 py-10 tablet:px-6 tablet:py-16">
+            <LogoMark className="h-auto w-full" />
+            <span className="sr-only">{wordmark}</span>
+          </div>
 
           <div className="grid gap-2.5 tablet:grid-cols-2">
             <div className="flex flex-col gap-1.5 rounded-[8px] bg-white p-2 text-black">
