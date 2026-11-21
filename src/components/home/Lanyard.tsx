@@ -26,77 +26,6 @@ import { LOGO_PATHS } from "./logoPaths";
 const STRAP_RATIO = 0.14;
 const STRAP_LINE_WIDTH = (STRAP_RATIO * 1.6) / Math.tan((10 * Math.PI) / 180);
 
-/* Strap sampling ported from the template (Lanyard_Prod.js): arc-length samples, bend-limited relaxation so slack
-   rounds into a loop instead of a hairpin, and ribbon direction read over TANGENT_SPAN so a short end segment at the
-   ring can't twist the ribbon into a point. */
-const BAND_POINTS = 33;
-const TANGENT_SPAN = 0.32;
-const BAND_RELAX = 28;
-const BEND_FREE = 0.42;
-const BEND_FULL = 1.35;
-type BandScratch = { points: Float32Array; swap: Float32Array; p: THREE.Vector3; ready: boolean };
-
-function updateBand(geometry: MeshLineGeometry, curve: THREE.CatmullRomCurve3, sc: BandScratch) {
-  curve.updateArcLengths();
-  const pts = sc.points;
-  for (let i = 0; i < BAND_POINTS; i++) {
-    curve.getPointAt(i / (BAND_POINTS - 1), sc.p);
-    pts[i * 3] = sc.p.x;
-    pts[i * 3 + 1] = sc.p.y;
-    pts[i * 3 + 2] = sc.p.z;
-  }
-  let from = pts;
-  let to = sc.swap;
-  const last = (BAND_POINTS - 1) * 3;
-  for (let pass = 0; pass < BAND_RELAX; pass++) {
-    to[0] = from[0]; to[1] = from[1]; to[2] = from[2];
-    to[last] = from[last]; to[last + 1] = from[last + 1]; to[last + 2] = from[last + 2];
-    let moved = false;
-    for (let i = 1; i < BAND_POINTS - 1; i++) {
-      const c = i * 3;
-      const ax = from[c] - from[c - 3], ay = from[c + 1] - from[c - 2], az = from[c + 2] - from[c - 1];
-      const bx = from[c + 3] - from[c], by = from[c + 4] - from[c + 1], bz = from[c + 5] - from[c + 2];
-      const la = Math.hypot(ax, ay, az), lb = Math.hypot(bx, by, bz);
-      let w = 0;
-      if (la > 1e-6 && lb > 1e-6) {
-        const cos = (ax * bx + ay * by + az * bz) / (la * lb);
-        const bend = Math.acos(Math.max(-1, Math.min(1, cos)));
-        w = Math.min(1, Math.max(0, (bend - BEND_FREE) / (BEND_FULL - BEND_FREE)));
-      }
-      if (w > 0) moved = true;
-      for (let a = 0; a < 3; a++) {
-        const mid = (from[c - 3 + a] + from[c + 3 + a]) * 0.5;
-        to[c + a] = from[c + a] + (mid - from[c + a]) * w * 0.6;
-      }
-    }
-    const t = from; from = to; to = t;
-    if (!moved) break;
-  }
-  if (from !== pts) pts.set(from);
-  if (!sc.ready) {
-    geometry.setPoints(pts);
-    sc.ready = true;
-  }
-  const span = Math.max(1, Math.round((TANGENT_SPAN / Math.max(curve.getLength(), 0.001)) * (BAND_POINTS - 1)));
-  const position = geometry.getAttribute("position") as THREE.BufferAttribute;
-  const previous = geometry.getAttribute("previous") as THREE.BufferAttribute;
-  const next = geometry.getAttribute("next") as THREE.BufferAttribute;
-  for (let i = 0; i < BAND_POINTS; i++) {
-    const pi = Math.max(0, i - span) * 3, ni = Math.min(BAND_POINTS - 1, i + span) * 3, c = i * 3;
-    for (let side = 0; side < 2; side++) {
-      const o = (i * 2 + side) * 3;
-      for (let a = 0; a < 3; a++) {
-        (position.array as Float32Array)[o + a] = pts[c + a];
-        (previous.array as Float32Array)[o + a] = pts[pi + a];
-        (next.array as Float32Array)[o + a] = pts[ni + a];
-      }
-    }
-  }
-  position.needsUpdate = true;
-  previous.needsUpdate = true;
-  next.needsUpdate = true;
-}
-
 extend({ MeshLineGeometry, MeshLineMaterial });
 declare module "@react-three/fiber" {
   interface ThreeElements {
@@ -244,16 +173,14 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
   const dir = useMemo(() => new THREE.Vector3(), []);
   const curve = useMemo(() => {
     const c = new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]);
+    c.curveType = "chordal";
     return c;
   }, []);
-  const bandScratch = useMemo(() => ({ points: new Float32Array(BAND_POINTS * 3), swap: new Float32Array(BAND_POINTS * 3), p: new THREE.Vector3(), ready: false }), []);
-  // Drawn (interpolated) poses the strap runs through, as in the template: card ring, j1, j2.
-  const ringObj = useRef<THREE.Object3D>(null);
-  const j1Obj = useRef<THREE.Object3D>(null);
-  const j2Obj = useRef<THREE.Object3D>(null);
+  const lerped = useRef<Record<string, THREE.Vector3>>({});
 
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
+  const [isWide, setIsWide] = useState(true);
   const { nodes } = useGLTF(CARD_GLB_URL) as unknown as { nodes: Record<string, THREE.Mesh> };
   const cardTexture = useCardTexture(cardImage);
 
@@ -263,6 +190,13 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     return t;
   }, [strapImage]);
+
+  useEffect(() => {
+    const onResize = () => setIsWide(window.innerWidth >= 1024);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const segment = { type: "dynamic" as const, canSleep: true, colliders: false as const, angularDamping: 4, linearDamping: 4 };
 
@@ -279,7 +213,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     };
   }, [hovered, dragged]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (dragged && card.current) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -289,13 +223,18 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     }
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current || !band.current) return;
 
-    if (!ringObj.current || !j1Obj.current || !j2Obj.current) return;
-    // No smoothing lag: the strap follows the drawn poses, so it can't wobble against the clasp.
-    ringObj.current.getWorldPosition(curve.points[0]);
-    j2Obj.current.getWorldPosition(curve.points[1]);
-    j1Obj.current.getWorldPosition(curve.points[2]);
+    // Smooth the two middle joints to avoid jitter
+    for (const [key, ref] of [["j1", j1], ["j2", j2]] as const) {
+      const t = ref.current!.translation();
+      const prev = (lerped.current[key] ??= new THREE.Vector3(t.x, t.y, t.z));
+      const dist = Math.max(0.1, Math.min(1, prev.distanceTo(t as THREE.Vector3)));
+      prev.lerp(t as THREE.Vector3, delta * (10 + dist * 40));
+    }
+    curve.points[0].copy(j3.current.translation() as THREE.Vector3);
+    curve.points[1].copy(lerped.current.j2);
+    curve.points[2].copy(lerped.current.j1);
     curve.points[3].copy(fixed.current.translation() as THREE.Vector3);
-    updateBand(band.current.geometry, curve, bandScratch);
+    band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
     // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
     const res = band.current.material.resolution;
     if (res.x !== state.size.width || res.y !== state.size.height) res.set(state.size.width, state.size.height);
@@ -303,8 +242,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     // Keep the card facing the camera
     ang.copy(card.current.angvel() as THREE.Vector3);
     rot.copy(card.current.rotation() as unknown as THREE.Vector3);
-    // Only while awake, and without waking it: lets the card fall asleep instead of twitching forever.
-    if (!card.current.isSleeping()) card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, false);
+    card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
   });
 
   return (
@@ -313,18 +251,15 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
         <RigidBody ref={fixed} {...segment} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segment}>
           <BallCollider args={[0.1]} />
-          <object3D ref={j1Obj} />
         </RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segment}>
           <BallCollider args={[0.1]} />
-          <object3D ref={j2Obj} />
         </RigidBody>
         <RigidBody position={[1.5, 0, 0]} ref={j3} {...segment}>
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segment} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
-          <object3D ref={ringObj} position={[0, 1.5, 0]} />
           <group
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
@@ -351,7 +286,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           </group>
         </RigidBody>
       </group>
-      <mesh ref={band} frustumCulled={false}>
+      <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
           color={strapTexture ? "white" : strapColor}
