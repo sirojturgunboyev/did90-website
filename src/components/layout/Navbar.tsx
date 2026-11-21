@@ -76,12 +76,13 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
               </li>
             ))}
           </ul>
-          <div className="hidden tablet:block">
-            <LanguageMenu current={lang} />
-          </div>
           <Link href={localePath(lang, "/contact")} className="hidden rounded-[8px] px-3 py-1.5 text-nav-m transition-colors hover:bg-white tablet:block">
             {dict.contact}
           </Link>
+          <span className="hidden h-6 w-[5px] shrink-0 rounded-full bg-grey-02 tablet:block" aria-hidden />
+          <div className="hidden tablet:block">
+            <LanguageMenu current={lang} />
+          </div>
 
           <button
             type="button"
