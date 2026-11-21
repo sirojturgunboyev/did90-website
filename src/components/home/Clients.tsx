@@ -13,7 +13,19 @@ export function Clients({ clients }: { clients: Home["clients"] }) {
     const id = setInterval(() => setTick((t) => t + 1), 4000);
     return () => clearInterval(id);
   }, []);
-  if (!logos.length) return null;
+  // TEMP: Framer shablonidagi namuna logotiplar — CMS'da logotip bo'lmasa ko'rsatiladi.
+  if (!logos.length) {
+    return (
+      <section className="grid grid-cols-2 gap-[5px] py-[5px] desktop:grid-cols-4" aria-label="Clients">
+        {[1, 2, 3, 4].map((n) => (
+          <div key={n} className="grid h-[70px] place-items-center rounded-[10px] bg-grey-03 px-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/placeholder-logos/logo-${n}.svg`} alt="" className="h-[30px] w-auto max-w-full" />
+          </div>
+        ))}
+      </section>
+    );
+  }
 
   return (
     <section className="grid grid-cols-2 gap-[5px] py-[5px] desktop:grid-cols-4" aria-label="Clients">
