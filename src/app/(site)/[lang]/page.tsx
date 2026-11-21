@@ -33,7 +33,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       <Process title={home.processTitle} steps={home.steps} />
       <Testimonials title={home.testimonialsTitle} clients={home.clients} testimonials={home.testimonials} />
       <Separator />
-      <Why data={home} clients={home.clients} />
+      <Why lang={lang} data={home} clients={home.clients} />
       <Faq title={home.faqTitle} subtitle={home.faqSubtitle} aside={home.faqAside} email={settings?.email} faqs={home.faqs} />
       <Contact lines={home.contactLines ?? []} note={home.contactNote} imageLeft={home.contactImageLeft} imageRight={home.contactImageRight} dict={dict.contact} />
     </>
