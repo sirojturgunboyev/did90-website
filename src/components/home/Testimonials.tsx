@@ -29,12 +29,12 @@ export function Testimonials({ title, clients, testimonials }: { title?: string;
           </RiseGroup>
         )}
         {/* Framer: heading is absolutely placed 280px from the top of the photo cluster */}
-        <Reveal className="absolute inset-x-0 top-[280px] px-4 text-center">
+        <Reveal className="relative mt-[30px] w-full px-4 text-center tablet:absolute tablet:inset-x-0 tablet:top-[280px] tablet:mt-0">
           <h2 className="text-h1">{title}</h2>
         </Reveal>
 
         {/* Testimonial cards: white 5px frame, 290px credentials row (51×40 photo, 16px name, 12px role) + 100px quote box */}
-        <div className="mt-[98px] flex w-full flex-col items-center tablet:flex-row tablet:items-start tablet:justify-center">
+        <div className="mt-10 flex w-full flex-col items-center gap-2.5 px-4 tablet:mt-[98px] tablet:gap-0 tablet:px-0 tablet:flex-row tablet:items-start tablet:justify-center">
           {testimonials.slice(0, 3).map((t, i) => {
             const author = (
               <div className="flex w-full items-center gap-2.5 rounded-[5px] bg-grey-03 p-3 tablet:w-[290px]">
