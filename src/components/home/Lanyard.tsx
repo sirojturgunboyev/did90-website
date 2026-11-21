@@ -20,6 +20,12 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { LOGO_PATHS } from "./logoPaths";
 
+// Strap width = 14% of the card width at any window size. With the line resolution set to the canvas size,
+// strap px = lineWidth·H/(2·d) and card px = 1.6·H/(2·d·tan10°) (fov 20, card 1.6 units wide),
+// so the ratio is lineWidth·tan10°/1.6 and does not depend on the window.
+const STRAP_RATIO = 0.14;
+const STRAP_LINE_WIDTH = (STRAP_RATIO * 1.6) / Math.tan((10 * Math.PI) / 180);
+
 extend({ MeshLineGeometry, MeshLineMaterial });
 declare module "@react-three/fiber" {
   interface ThreeElements {
@@ -154,7 +160,7 @@ function useCardTexture(frontUrl?: string | null) {
 }
 
 function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strapColor">> & Pick<Props, "cardImage" | "strapImage">) {
-  const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
+    const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
   const fixed = useRef<RapierRigidBody>(null);
   const j1 = useRef<RapierRigidBody>(null);
   const j2 = useRef<RapierRigidBody>(null);
@@ -288,7 +294,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           useMap={strapTexture ? 1 : 0}
           map={strapTexture ?? undefined}
           repeat={[-4, 1]}
-          lineWidth={1}
+          lineWidth={STRAP_LINE_WIDTH}
         />
       </mesh>
     </>
