@@ -161,3 +161,5 @@ export const getPost = (lang: Locale, slug: string) =>
     `*[_type == "post" && slug.current == $slug][0]{..., "title": ${L("title")}, "slug": slug.current, "excerpt": ${L("excerpt")}, "category": ${L("category->title")}, "body": ${L("body")}}`,
     { lang, slug },
   );
+
+export const getPostSlugs = () => sanityFetch<string[]>(`*[_type == "post" && defined(slug.current)].slug.current`);

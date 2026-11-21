@@ -6,3 +6,7 @@ export function BackToTop({ label }: { label: string }) {
     </button>
   );
 }
+
+export function Year() {
+  return <span suppressHydrationWarning>{new Date().getFullYear()}</span>;
+}

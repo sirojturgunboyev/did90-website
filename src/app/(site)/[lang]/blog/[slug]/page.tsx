@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText } from "next-sanity";
-import { hasLocale, localePath } from "@/i18n/config";
+import { hasLocale, localePath, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getPost } from "@/lib/queries";
+import { getPost, getPostSlugs } from "@/lib/queries";
 import { SanityImg } from "@/components/ui/SanityImg";
+
+export async function generateStaticParams() {
+  const slugs = await getPostSlugs().catch(() => [] as string[]);
+  // Cache Components needs at least one param; a missing slug simply renders 404
+  const list = slugs.length ? slugs : ["_"];
+  return locales.flatMap((lang) => list.map((slug) => ({ lang, slug })));
+}
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/blog/[slug]">): Promise<Metadata> {
   const { lang, slug } = await params;

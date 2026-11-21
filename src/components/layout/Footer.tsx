@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Ticker } from "../ui/Ticker";
 import { LogoMark } from "./Logo";
-import { BackToTop } from "./BackToTop";
+import { BackToTop, Year } from "./BackToTop";
 import { localePath, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
@@ -39,7 +39,6 @@ export function Footer({
     { href: localePath(lang, "/blog"), label: dict.nav.blog },
     { href: localePath(lang, "/contact"), label: dict.nav.contact },
   ];
-  const year = new Date().getFullYear();
 
   return (
     <footer className="px-2.5 pb-2.5">
@@ -82,7 +81,7 @@ export function Footer({
       </div>
       <div className="mt-2.5 flex flex-col items-center gap-2 rounded-[10px] bg-black px-5 py-4 text-body-l text-white tablet:flex-row tablet:justify-between">
         <span>
-          DID90° {year}. {dict.footer.rights}
+          DID90° <Year />. {dict.footer.rights}
         </span>
         <span className="text-grey-01">{dict.footer.credit}</span>
         <BackToTop label={dict.footer.backToTop} />

@@ -11,7 +11,8 @@ import { urlFor } from "@/sanity/client";
 
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs().catch(() => [] as string[]);
-  return locales.flatMap((lang) => slugs.map((slug) => ({ lang, slug })));
+  const list = slugs.length ? slugs : ["_"];
+  return locales.flatMap((lang) => list.map((slug) => ({ lang, slug })));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/projects/[slug]">): Promise<Metadata> {
