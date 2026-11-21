@@ -18,7 +18,7 @@ export function swapLocale(pathname: string, to: Locale) {
 
 function Globe() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
       <circle cx="12" cy="12" r="9.25" />
       <path d="M2.75 12h18.5M12 2.75c2.4 2.5 3.7 5.7 3.7 9.25S14.4 18.75 12 21.25M12 2.75C9.6 5.25 8.3 8.45 8.3 12s1.3 6.75 3.7 9.25" />
     </svg>
@@ -53,10 +53,9 @@ export function LanguageMenu({ current, label = "Language", align = "right", up 
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={label}
-        className={`flex h-8 items-center gap-1 rounded-[8px] px-2 text-nav-s uppercase transition-colors hover:bg-white ${open ? "bg-white" : ""}`}
+        className={`grid size-8 place-items-center rounded-[8px] transition-colors hover:bg-white ${open ? "bg-white" : ""}`}
       >
         <Globe />
-        <span>{current}</span>
       </button>
       <AnimatePresence>
         {open && (
