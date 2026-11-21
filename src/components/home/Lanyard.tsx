@@ -176,7 +176,10 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     c.curveType = "chordal";
     return c;
   }, []);
-  const lerped = useRef<Record<string, THREE.Vector3>>({});
+  // Drawn (interpolated) poses the strap runs through, as in the template: card ring, j1, j2.
+  const ringObj = useRef<THREE.Object3D>(null);
+  const j1Obj = useRef<THREE.Object3D>(null);
+  const j2Obj = useRef<THREE.Object3D>(null);
 
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
@@ -213,7 +216,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     };
   }, [hovered, dragged]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (dragged && card.current) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -223,16 +226,11 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     }
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current || !band.current) return;
 
-    // Smooth the two middle joints to avoid jitter
-    for (const [key, ref] of [["j1", j1], ["j2", j2]] as const) {
-      const t = ref.current!.translation();
-      const prev = (lerped.current[key] ??= new THREE.Vector3(t.x, t.y, t.z));
-      const dist = Math.max(0.1, Math.min(1, prev.distanceTo(t as THREE.Vector3)));
-      prev.lerp(t as THREE.Vector3, delta * (10 + dist * 40));
-    }
-    curve.points[0].copy(j3.current.translation() as THREE.Vector3);
-    curve.points[1].copy(lerped.current.j2);
-    curve.points[2].copy(lerped.current.j1);
+    if (!ringObj.current || !j1Obj.current || !j2Obj.current) return;
+    // No smoothing lag: the strap follows the drawn poses, so it can't wobble against the clasp.
+    ringObj.current.getWorldPosition(curve.points[0]);
+    j2Obj.current.getWorldPosition(curve.points[1]);
+    j1Obj.current.getWorldPosition(curve.points[2]);
     curve.points[3].copy(fixed.current.translation() as THREE.Vector3);
     band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
     // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
@@ -242,7 +240,8 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     // Keep the card facing the camera
     ang.copy(card.current.angvel() as THREE.Vector3);
     rot.copy(card.current.rotation() as unknown as THREE.Vector3);
-    card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
+    // Only while awake, and without waking it: lets the card fall asleep instead of twitching forever.
+    if (!card.current.isSleeping()) card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, false);
   });
 
   return (
@@ -251,15 +250,18 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
         <RigidBody ref={fixed} {...segment} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segment}>
           <BallCollider args={[0.1]} />
+          <object3D ref={j1Obj} />
         </RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segment}>
           <BallCollider args={[0.1]} />
+          <object3D ref={j2Obj} />
         </RigidBody>
         <RigidBody position={[1.5, 0, 0]} ref={j3} {...segment}>
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segment} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <object3D ref={ringObj} position={[0, 1.5, 0]} />
           <group
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
