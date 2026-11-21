@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Logo } from "./Logo";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { LanguageMenu } from "./LanguageMenu";
 import { Ticker } from "../ui/Ticker";
 import { localePath, type Locale } from "@/i18n/config";
 
@@ -76,7 +76,9 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
               </li>
             ))}
           </ul>
-          <LanguageSwitcher current={lang} className="hidden tablet:flex" />
+          <div className="hidden tablet:block">
+            <LanguageMenu current={lang} />
+          </div>
           <Link href={localePath(lang, "/contact")} className="hidden rounded-[8px] px-3 py-1.5 text-nav-m transition-colors hover:bg-white tablet:block">
             {dict.contact}
           </Link>
@@ -113,7 +115,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
                 ))}
               </ul>
               <div className="flex items-center justify-between px-1 pb-2">
-                <LanguageSwitcher current={lang} />
+                <LanguageMenu current={lang} align="left" up />
                 <Link href={localePath(lang, "/contact")} onClick={() => setOpen(false)} className="rounded-[8px] bg-black px-4 py-2.5 text-nav-m text-white">
                   {dict.contactUs}
                 </Link>
