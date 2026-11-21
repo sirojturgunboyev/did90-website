@@ -115,7 +115,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
                 </div>
               </div>
               <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
-              <span className="shrink-0 rounded-[10px] bg-white px-2.5 py-1.5 text-nav-s">
+              <span className="shrink-0 rounded-[10px] bg-white px-2.5 py-1.5 text-nav-m">
                 <Clock />
               </span>
             </div>
