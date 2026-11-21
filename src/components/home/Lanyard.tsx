@@ -237,6 +237,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
     // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
     const res = band.current.material.resolution;
+    (window as unknown as { __lanyard?: unknown }).__lanyard = { card: card.current, j1: j1.current, j2: j2.current, j3: j3.current, curve };
     if (res.x !== state.size.width || res.y !== state.size.height) res.set(state.size.width, state.size.height);
 
     // Keep the card facing the camera
