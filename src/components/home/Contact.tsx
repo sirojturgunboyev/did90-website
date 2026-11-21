@@ -7,7 +7,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 
 type State = "idle" | "sending" | "success" | "error";
 
-const field = "w-full rounded-[8px] bg-grey-03 px-3 py-2.5 text-[14px] tracking-[-0.02em] outline-none placeholder:text-grey-01 focus:ring-1 focus:ring-black";
+const field = "w-full rounded-[10px] bg-grey-03 px-2.5 text-[14px] tracking-[-0.02em] text-black outline-none placeholder:text-grey-01 focus:ring-1 focus:ring-black";
 
 export function Contact({
   lines,
@@ -42,7 +42,7 @@ export function Contact({
   }
 
   return (
-    <section ref={ref} id="contact" className="relative overflow-hidden rounded-[10px] border-[3px] border-black bg-white px-5 pb-24 pt-20 tablet:pt-24">
+    <section ref={ref} id="contact" className="relative overflow-hidden rounded-[10px] border-4 border-black bg-white px-5 py-[100px]">
       <motion.div className="pointer-events-none absolute left-0 top-2.5 w-[470px] max-w-[38%]" style={{ x: xl }}>
         <SanityImg image={imageLeft} width={800} sizes="470px" className="w-full" />
       </motion.div>
@@ -50,39 +50,43 @@ export function Contact({
         <SanityImg image={imageRight} width={800} sizes="470px" className="w-full" />
       </motion.div>
 
-      <div className="relative mx-auto flex max-w-[400px] flex-col gap-4">
-        <div className="pb-2 text-center text-body-l">
+      {/* Framer "Contact Form": 500px max, 16px lines, form 20px padding / 20px gap, 12px labels, 40px inputs r10,
+          submit = black 40px button r10 inside a Grey 03 5px frame */}
+      <div className="relative mx-auto flex max-w-[500px] flex-col items-center">
+        <div className="w-full text-center text-body">
           {lines.map((l, i) => (
             <p key={i}>{l}</p>
           ))}
         </div>
-        <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate={false}>
-          <label className="flex flex-col gap-1.5 text-small">
-            <span className="px-2.5">{dict.name}</span>
-            <input name="name" required maxLength={120} autoComplete="name" placeholder={dict.namePh} className={field} />
+        <form onSubmit={onSubmit} className="flex w-full flex-col gap-5 p-5" noValidate={false}>
+          <label className="flex flex-col gap-[5px]">
+            <span className="px-2.5 text-small">{dict.name}</span>
+            <input name="name" required maxLength={120} autoComplete="name" placeholder={dict.namePh} className={`${field} h-10`} />
           </label>
-          <label className="flex flex-col gap-1.5 text-small">
-            <span className="px-2.5">{dict.email}</span>
-            <input name="email" type="email" required maxLength={200} autoComplete="email" placeholder={dict.emailPh} className={field} />
+          <label className="flex flex-col gap-[5px]">
+            <span className="px-2.5 text-small">{dict.email}</span>
+            <input name="email" type="email" required maxLength={200} autoComplete="email" placeholder={dict.emailPh} className={`${field} h-10`} />
           </label>
-          <label className="flex flex-col gap-1.5 text-small">
-            <span className="px-2.5">{dict.message}</span>
-            <textarea name="message" required maxLength={4000} rows={4} placeholder={dict.messagePh} className={`${field} resize-y`} />
+          <label className="flex flex-col gap-[5px]">
+            <span className="px-2.5 text-small">{dict.message}</span>
+            <textarea name="message" required maxLength={4000} placeholder={dict.messagePh} className={`${field} min-h-[100px] resize-y py-2.5`} />
           </label>
           {/* honeypot */}
           <input name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
-          <button
-            type="submit"
-            disabled={state === "sending"}
-            className="mt-2 rounded-[8px] bg-black py-2.5 text-[14px] font-semibold text-white ring-2 ring-white outline outline-1 outline-grey-02 transition-opacity hover:opacity-85 disabled:opacity-60"
-          >
-            {state === "sending" ? dict.sending : dict.submit}
-          </button>
-          <p role="status" className={`min-h-5 text-center text-small ${state === "error" ? "text-red" : "text-grey-01"}`}>
-            {state === "success" ? dict.success : state === "error" ? dict.error : ""}
-          </p>
+          <div className="rounded-[10px] bg-grey-03 p-[5px]">
+            <button
+              type="submit"
+              disabled={state === "sending"}
+              className={`flex h-10 w-full items-center justify-center gap-2 rounded-[10px] text-[14px] font-semibold transition-colors duration-300 ${
+                state === "error" ? "bg-[rgba(255,34,68,0.15)] text-[rgb(255,34,68)]" : "bg-black text-white hover:bg-[rgba(3,3,3,0.6)]"
+              }`}
+            >
+              {state === "sending" && <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden />}
+              {state === "success" ? dict.success : state === "error" ? dict.error : dict.submit}
+            </button>
+          </div>
+          <p className="px-2.5 text-center text-body-l">{note}</p>
         </form>
-        <p className="text-center text-body-l">{note}</p>
       </div>
     </section>
   );
