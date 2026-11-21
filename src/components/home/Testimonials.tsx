@@ -1,10 +1,13 @@
 import { SanityImg } from "../ui/SanityImg";
-import { Reveal } from "../ui/Reveal";
+import { Reveal, Rise } from "../ui/Reveal";
 import type { Home } from "@/lib/queries";
 
 /* Column offsets reproduce the stepped "U" collage from the template */
 const OFFSETS = [93, 0, 49, 0, 49, 0, 49, 0, 93];
 const COUNTS = [2, 2, 1, 1, 1, 1, 1, 2, 2];
+/* Framer: each column rises into place when in view, outer columns slower */
+const RISE = [350, 300, 280, 250, 200, 250, 280, 300, 350];
+const DUR = [4.3, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5];
 
 export function Testimonials({ title, clients, testimonials }: { title?: string; clients: Home["clients"]; testimonials: Home["testimonials"] }) {
   const photos = clients.filter((c) => c.photo?.asset);
@@ -18,11 +21,11 @@ export function Testimonials({ title, clients, testimonials }: { title?: string;
         {photos.length > 0 && (
           <div className="flex justify-center gap-[7px] overflow-hidden">
             {columns.map((col, ci) => (
-              <div key={ci} className={`flex-col gap-[10px] ${ci >= 7 || ci <= 1 ? "hidden tablet:flex" : "flex"}`} style={{ paddingTop: OFFSETS[ci] }}>
+              <Rise key={ci} y={RISE[ci]} duration={DUR[ci]} bounce={ci >= 7 ? 0.2 : 0} className={`flex-col gap-[10px] ${ci >= 7 || ci <= 1 ? "hidden tablet:flex" : "flex"}`} style={{ paddingTop: OFFSETS[ci] }}>
                 {col.slice(0, 2).map((c) => (
                   <SanityImg key={c._id} image={c.photo} alt={c.name} width={200} sizes="83px" className="h-[102px] w-[83px] rounded-[6px] object-cover" />
                 ))}
-              </div>
+              </Rise>
             ))}
           </div>
         )}

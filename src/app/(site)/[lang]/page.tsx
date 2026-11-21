@@ -1,3 +1,4 @@
+import { Separator } from "@/components/ui/Separator";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -31,7 +32,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       <Services title={home.servicesTitle} left={home.servicesLeft} right={home.servicesRight} services={home.services} />
       <Process title={home.processTitle} steps={home.steps} />
       <Testimonials title={home.testimonialsTitle} clients={home.clients} testimonials={home.testimonials} />
-      <hr className="border-grey-03" />
+      <Separator />
       <Why data={home} clients={home.clients} />
       <Faq title={home.faqTitle} subtitle={home.faqSubtitle} aside={home.faqAside} email={settings?.email} faqs={home.faqs} />
       <Contact lines={home.contactLines ?? []} note={home.contactNote} imageLeft={home.contactImageLeft} imageRight={home.contactImageRight} dict={dict.contact} />

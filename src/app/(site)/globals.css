@@ -151,3 +151,7 @@ body {
 @keyframes ticker-y {
   to { transform: translateY(calc(-50% - var(--gap, 5px))); }
 }
+
+@media (pointer: fine) {
+  [data-cursor="dot"] { cursor: none; }
+}

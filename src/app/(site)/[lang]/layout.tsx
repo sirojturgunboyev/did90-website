@@ -9,6 +9,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { Loader } from "@/components/layout/Loader";
+import { BlurGradient } from "@/components/layout/BlurGradient";
+import { CursorDot } from "@/components/layout/CursorDot";
 
 import { SITE_URL } from "@/lib/site";
 
@@ -55,6 +57,8 @@ export default async function SiteLayout({ children, params }: LayoutProps<"/[la
       <body>
         <Loader />
         <SmoothScroll />
+        <CursorDot />
+        <BlurGradient />
         <Navbar lang={locale} dict={dict.nav} ticker={settings?.navTicker ?? []} />
         <main className="mx-auto flex w-full max-w-[1560px] flex-col gap-2.5 px-2.5 tablet:px-5">{children}</main>
         <Footer

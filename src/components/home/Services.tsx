@@ -56,7 +56,7 @@ export function Services({ title, left, right, services }: { title?: string; lef
   return (
     <section id="services" className="relative scroll-mt-24 py-2.5">
       {/* Sticky dark panel; the service cards below scroll up over it. */}
-      <div className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden rounded-[10px] bg-black px-5 text-white">
+      <div data-cursor="dot" className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden rounded-[10px] bg-black px-5 text-white">
         <Corners />
         <p className="absolute top-14 text-body-l">{title}</p>
         <div className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">

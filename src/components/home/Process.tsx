@@ -17,6 +17,7 @@ export function Process({ title, steps }: { title?: string; steps: Home["steps"]
   return (
     <section id="process" className="scroll-mt-24">
       <div
+        data-cursor="dot"
         className="relative flex min-h-[640px] flex-col rounded-[10px] bg-black px-5 pb-10 text-white tablet:h-[828px] tablet:px-[65px]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}

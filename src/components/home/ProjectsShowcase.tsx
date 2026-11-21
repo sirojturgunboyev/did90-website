@@ -18,7 +18,7 @@ export function ProjectsShowcase({ lang, title, subtitle, featured, latest }: { 
           <span className="text-grey-01">{subtitle}</span>
         </h2>
       </Reveal>
-      <div className="flex min-h-svh flex-col justify-end gap-2.5 rounded-[10px] bg-black p-2.5 tablet:flex-row tablet:items-end tablet:gap-[5px] tablet:px-5 tablet:pb-5">
+      <div data-cursor="dot" className="flex min-h-svh flex-col justify-end gap-2.5 rounded-[10px] bg-black p-2.5 tablet:flex-row tablet:items-end tablet:gap-[5px] tablet:px-5 tablet:pb-5">
         <div className="pt-5 tablet:w-1/2 tablet:pb-0">
           <ProjectCard project={big} href={href(big)} size="lg" invert />
         </div>

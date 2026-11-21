@@ -1,40 +1,34 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
+import { AnimatePresence, motion, useMotionValue } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { ProjectCard as P } from "@/lib/queries";
 
 // Framer "Project Card" hover: thumbnail blur 5px + scale 1.06 (spring 0.4s, bounce 0.2),
 // and the "Main - Cursor / Explore" pill following the pointer.
 const cardSpring = { type: "spring", duration: 0.4, bounce: 0.2 } as const;
-const cursorSpring = { stiffness: 500, damping: 60, mass: 1 };
 
 export function ProjectCard({ project, href, size = "sm", invert = false }: { project: P; href: string; size?: "sm" | "lg"; invert?: boolean }) {
   const [hover, setHover] = useState(false);
-  const x = useSpring(useMotionValue(0), cursorSpring);
-  const y = useSpring(useMotionValue(0), cursorSpring);
+  // Framer cursor has follow: false → sits exactly on the pointer.
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-  const move = (e: React.PointerEvent<HTMLDivElement>, jump = false) => {
+  const move = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    const nx = e.clientX - r.left;
-    const ny = e.clientY - r.top;
-    if (jump) {
-      x.jump(nx);
-      y.jump(ny);
-    } else {
-      x.set(nx);
-      y.set(ny);
-    }
+    x.set(e.clientX - r.left);
+    y.set(e.clientY - r.top);
   };
 
   return (
     <Link href={href} className="group flex flex-col gap-2">
       <div
+        data-cursor="explore"
         className={`relative overflow-hidden rounded-[8px] ${size === "lg" ? "aspect-[558/560]" : "aspect-[4/5]"} cursor-none`}
         onPointerEnter={(e) => {
           if (e.pointerType !== "mouse") return;
-          move(e, true);
+          move(e);
           setHover(true);
         }}
         onPointerMove={(e) => e.pointerType === "mouse" && move(e)}

@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { motion } from "motion/react";
+import { useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { SanityImage } from "@/lib/queries";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -23,6 +23,12 @@ export function Contact({
   dict: Dictionary["contact"];
 }) {
   const [state, setState] = useState<State>("idle");
+  // Framer: side images slide in ±250px → 0 as the section scrolls up to the viewport bottom (spring 400/98/0.9).
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  const p = useSpring(scrollYProgress, { stiffness: 400, damping: 98, mass: 0.9 });
+  const xl = useTransform(p, [0, 1], [-250, 0]);
+  const xr = useTransform(p, [0, 1], [250, 0]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,12 +42,12 @@ export function Contact({
   }
 
   return (
-    <section id="contact" className="relative overflow-hidden rounded-[10px] border-[3px] border-black bg-white px-5 pb-24 pt-20 tablet:pt-24">
-      <motion.div className="pointer-events-none absolute left-0 top-0 w-[38%] max-w-[380px]" initial={{ x: -60, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.2, ease: [0.44, 0, 0.56, 1] }}>
-        <SanityImg image={imageLeft} width={800} sizes="380px" className="w-full" />
+    <section ref={ref} id="contact" className="relative overflow-hidden rounded-[10px] border-[3px] border-black bg-white px-5 pb-24 pt-20 tablet:pt-24">
+      <motion.div className="pointer-events-none absolute left-0 top-2.5 w-[470px] max-w-[38%]" style={{ x: xl }}>
+        <SanityImg image={imageLeft} width={800} sizes="470px" className="w-full" />
       </motion.div>
-      <motion.div className="pointer-events-none absolute right-0 top-0 w-[38%] max-w-[380px]" initial={{ x: 60, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.2, ease: [0.44, 0, 0.56, 1] }}>
-        <SanityImg image={imageRight} width={800} sizes="380px" className="w-full" />
+      <motion.div className="pointer-events-none absolute right-0 top-2.5 w-[470px] max-w-[38%]" style={{ x: xr }}>
+        <SanityImg image={imageRight} width={800} sizes="470px" className="w-full" />
       </motion.div>
 
       <div className="relative mx-auto flex max-w-[400px] flex-col gap-4">

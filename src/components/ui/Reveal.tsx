@@ -37,3 +37,21 @@ export function CharReveal({ text, delay = 0.5, className }: { text: string; del
     </span>
   );
 }
+
+/** Plain fade-in on view (Framer appear: opacity 0 → 1, spring 1s). */
+export function FadeIn({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div className={className} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: 0 }} transition={{ type: "spring", duration: 1, bounce: 0.2 }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Slow rise from `y` px to 0 when in view (Framer "style transform on in-view"). */
+export function Rise({ children, y, duration, bounce = 0, className, style }: { children: React.ReactNode; y: number; duration: number; bounce?: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    <motion.div className={className} style={style} initial={{ y }} whileInView={{ y: 0 }} viewport={{ once: true, amount: 0 }} transition={{ type: "spring", duration, bounce }}>
+      {children}
+    </motion.div>
+  );
+}
