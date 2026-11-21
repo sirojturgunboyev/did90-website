@@ -7,9 +7,9 @@ const Lanyard = dynamic(() => import("./Lanyard"), { ssr: false });
 
 export function Hero({ title, tagline, cardImage, strapImage }: { title: string; tagline: string; cardImage?: string | null; strapImage?: string | null }) {
   return (
-    <section className="relative -mx-2.5 h-svh min-h-[600px] overflow-hidden bg-white tablet:-mx-5">
-      {/* Framer: Lanyard instance is a fixed 1080px-tall canvas pinned to the top, so the card keeps the same size on any screen height */}
-      <div className="absolute inset-x-0 top-0 z-[2] h-[1080px]">
+    <section className="relative -mx-2.5 h-[844px] overflow-hidden bg-white tablet:-mx-5 tablet:h-[1080px] desktop:h-svh desktop:min-h-[600px]">
+      {/* Framer: Phone section is 844px and Tablet 1080px with the canvas filling it; Desktop pins a 1080px canvas to the top */}
+      <div className="absolute inset-0 z-[2] desktop:bottom-auto desktop:h-[1080px]">
         <Lanyard cardImage={cardImage} strapImage={strapImage} />
       </div>
       {/* Framer: plain white text above the canvas — it only shows where it overlaps the dark card */}
