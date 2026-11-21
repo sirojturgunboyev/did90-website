@@ -76,10 +76,10 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
             animate={{ opacity: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, filter: "blur(4px)" }}
             transition={{ duration: 0.25 }}
-            className="flex items-center gap-6 py-[1px] pl-1"
+            className="flex items-center gap-10 py-[1px] pl-1.5"
           >
-            <Logo href={home} invert className="shrink-0" />
-            <Link href={localePath(lang, "/contact")} className="rounded-[6px] bg-grey-03 px-3.5 py-1.5 text-nav-m text-black transition-colors hover:bg-white">
+            <Logo href={home} invert className="shrink-0 [&_svg]:h-[19px]" />
+            <Link href={localePath(lang, "/contact")} className="rounded-[6px] bg-grey-03 px-5 py-2 text-nav-m text-black transition-colors hover:bg-white">
               {dict.contact}
             </Link>
           </motion.div>
