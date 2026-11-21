@@ -242,7 +242,9 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     // Keep the card facing the camera
     ang.copy(card.current.angvel() as THREE.Vector3);
     rot.copy(card.current.rotation() as unknown as THREE.Vector3);
-    card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
+    // Only while awake, and without waking it: once settled the whole rope falls asleep and stays perfectly still.
+    // Dragging wakes the bodies again (wakeUp above), so interaction is unchanged.
+    if (!card.current.isSleeping()) card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, false);
   });
 
   return (
