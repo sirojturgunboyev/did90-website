@@ -217,12 +217,17 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     }
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current || !band.current) return;
 
-    // Smooth the two middle joints to avoid jitter
+    // Smooth the two middle joints to avoid jitter.
+    // The lerp factor is capped at 1: with slow frames (page load, background tab) an uncapped
+    // factor overshoots and the strap points diverge, which made the band fly off and vanish.
+    const dt = Math.min(delta, 1 / 30);
     for (const [key, ref] of [["j1", j1], ["j2", j2]] as const) {
       const t = ref.current!.translation();
+      if (!Number.isFinite(t.x) || !Number.isFinite(t.y) || !Number.isFinite(t.z)) return;
       const prev = (lerped.current[key] ??= new THREE.Vector3(t.x, t.y, t.z));
+      if (!Number.isFinite(prev.x)) prev.set(t.x, t.y, t.z);
       const dist = Math.max(0.1, Math.min(1, prev.distanceTo(t as THREE.Vector3)));
-      prev.lerp(t as THREE.Vector3, delta * (10 + dist * 40));
+      prev.lerp(t as THREE.Vector3, Math.min(1, dt * (10 + dist * 40)));
     }
     curve.points[0].copy(j3.current.translation() as THREE.Vector3);
     curve.points[1].copy(lerped.current.j2);
@@ -277,7 +282,8 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           </group>
         </RigidBody>
       </group>
-      <mesh ref={band}>
+      {/* The band geometry changes every frame; its bounding sphere goes stale, so never cull it */}
+      <mesh ref={band} frustumCulled={false}>
         <meshLineGeometry />
         <meshLineMaterial
           color={strapTexture ? "white" : strapColor}
