@@ -4,30 +4,14 @@ import { AnimatePresence, motion } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { Home } from "@/lib/queries";
 
-/** Right-angle (90°) marker drawn like a set-square: L-shaped ruler with ticks and the ∟ square at the vertex. */
-function RightAngle({ className = "" }: { className?: string }) {
-  const ticks = [8, 12, 16, 20, 24, 28];
-  return (
-    <svg viewBox="0 0 36 36" className={`absolute size-9 text-white ${className}`} fill="none" stroke="currentColor" strokeWidth="1" aria-hidden>
-      <path d="M0.5 36V0.5H36" />
-      <path d="M0.5 9.5H9.5V0.5" />
-      {ticks.map((t) => (
-        <g key={t} strokeOpacity={t % 8 === 0 ? 1 : 0.55}>
-          <path d={`M${t + 0.5} 0.5v${t % 8 === 0 ? 5 : 3}`} />
-          <path d={`M0.5 ${t + 0.5}h${t % 8 === 0 ? 5 : 3}`} />
-        </g>
-      ))}
-    </svg>
-  );
-}
-
 function Corners() {
+  const c = "absolute text-white text-body-xl leading-none";
   return (
     <>
-      <RightAngle className="left-5 top-5" />
-      <RightAngle className="right-5 top-5 rotate-90" />
-      <RightAngle className="bottom-5 right-5 rotate-180" />
-      <RightAngle className="bottom-5 left-5 -rotate-90" />
+      <span className={`${c} left-5 top-5`}>+</span>
+      <span className={`${c} right-5 top-5`}>+</span>
+      <span className={`${c} bottom-5 left-5`}>+</span>
+      <span className={`${c} bottom-5 right-5`}>+</span>
     </>
   );
 }
