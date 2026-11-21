@@ -282,7 +282,6 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
         <meshLineMaterial
           color={strapTexture ? "white" : strapColor}
           depthTest={false}
-          resolution={isWide ? [1000, 2000] : [1000, 1000]}
           useMap={strapTexture ? 1 : 0}
           map={strapTexture ?? undefined}
           repeat={[-4, 1]}
