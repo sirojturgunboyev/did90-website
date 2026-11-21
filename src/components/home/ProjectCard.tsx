@@ -16,7 +16,7 @@ export function ProjectCard({ project, href, size = "sm", invert = false }: { pr
       </div>
       <div className={`flex items-center justify-between text-small ${invert ? "text-white" : "text-black"}`}>
         <span>{project.title}</span>
-        {project.category && <span className="text-grey-01">{project.category}</span>}
+        {size === "lg" && project.category && <span className="text-grey-01">{project.category}</span>}
       </div>
     </Link>
   );
