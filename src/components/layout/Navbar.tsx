@@ -44,10 +44,55 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
   ];
   const items = ticker.length ? ticker : ["DID90° Agency"];
 
+  // Collapse into the dark pill once the visitor scrolls past most of the first screen (template "Collapsed Dark" variant)
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    const first = setTimeout(onScroll, 0);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      clearTimeout(first);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+  const collapsed = scrolled && !open;
+  const spring = { type: "spring" as const, stiffness: 500, damping: 60, mass: 1 };
+
   return (
     <header className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-      <nav className="pointer-events-auto w-full max-w-[920px] rounded-[10px] bg-light-grey/90 px-2.5 py-1.5 backdrop-blur-md">
-        <div className="flex items-center gap-2">
+      <motion.nav
+        layout
+        transition={spring}
+        animate={{ backgroundColor: collapsed ? "#030303" : "rgba(234,234,234,0.9)" }}
+        style={{ borderRadius: 10 }}
+        className={`pointer-events-auto px-2.5 py-1.5 backdrop-blur-md ${collapsed ? "w-auto" : "w-full max-w-[920px]"}`}
+      >
+        <AnimatePresence mode="popLayout" initial={false}>
+        {collapsed ? (
+          <motion.div
+            key="collapsed"
+            layout="position"
+            initial={{ opacity: 0, filter: "blur(4px)" }}
+            animate={{ opacity: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, filter: "blur(4px)" }}
+            transition={{ duration: 0.25 }}
+            className="flex items-center gap-6 py-[1px] pl-1"
+          >
+            <Logo href={home} invert className="shrink-0" />
+            <Link href={localePath(lang, "/contact")} className="rounded-[6px] bg-grey-03 px-3.5 py-1.5 text-nav-m text-black transition-colors hover:bg-white">
+              {dict.contact}
+            </Link>
+          </motion.div>
+        ) : (
+        <motion.div
+          key="full"
+          layout="position"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, filter: "blur(4px)" }}
+          transition={{ duration: 0.25 }}
+          className="flex items-center gap-2"
+        >
           <Logo href={home} className="mr-auto shrink-0 px-1 tablet:mr-6" />
 
           <div className="hidden min-w-0 flex-1 items-center gap-1.5 desktop:flex">
@@ -95,7 +140,9 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
               <path d={open ? "M5 5l10 10M15 5L5 15" : "M3 6h14M3 10h14M3 14h14"} stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
             </svg>
           </button>
-        </div>
+        </motion.div>
+        )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {open && (
@@ -124,7 +171,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
+      </motion.nav>
     </header>
   );
 }
