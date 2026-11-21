@@ -102,8 +102,9 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
           <div className="flex min-w-0 flex-1 items-center gap-[3px]">
             <Logo href={home} className="mr-auto shrink-0 pl-1 pr-4" />
             <div className="hidden min-w-0 items-center gap-[3px] desktop:flex">
-              <div className="relative h-7 w-[260px] min-w-[120px] shrink overflow-hidden rounded-[10px] bg-white text-nav-s text-grey-01 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-                <div className="flex h-full items-center">
+              <div className="relative h-7 w-[260px] min-w-[120px] shrink overflow-hidden rounded-[10px] bg-white px-2.5 text-nav-s text-grey-01">
+                {/* Box stays solid; only the scrolling text fades out at the edges. */}
+                <div className="flex h-full items-center [mask-image:linear-gradient(90deg,transparent,#000_15%,#000_85%,transparent)]">
                   <Ticker duration={18} gap={10}>
                     {items.map((t, i) => (
                       <span key={i} className="whitespace-nowrap">
