@@ -35,8 +35,11 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
       icon: [
         { url: "/favicon/light.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
         { url: "/favicon/dark.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+        { url: "/favicon/light-180.png", type: "image/png", sizes: "180x180", media: "(prefers-color-scheme: light)" },
+        { url: "/favicon/dark-180.png", type: "image/png", sizes: "180x180", media: "(prefers-color-scheme: dark)" },
       ],
-      apple: "/favicon/light.png",
+      // iOS fills transparent touch icons with black, so the white mark stays visible.
+      apple: { url: "/favicon/dark-180.png", sizes: "180x180" },
     },
   };
 }
