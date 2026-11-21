@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { Home } from "@/lib/queries";
 
@@ -19,8 +19,18 @@ function Corners() {
 function ServiceRow({ title, images }: { title: string; images: Home["services"][number]["images"] }) {
   const [i, setI] = useState(0);
   const list = images?.length ? images : [null];
+  // Framer: each card scrolls up over the sticky dark panel and shrinks to 0.9 as it reaches the viewport middle.
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["center end", "center center"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
   return (
-    <div
+    <motion.div
+      ref={ref}
+      style={{ scale }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0 }}
+      transition={{ duration: 0.7, delay: 0.3, ease: [0.44, 0, 0.56, 1] }}
       className="grid gap-2.5 tablet:grid-cols-2"
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
@@ -28,8 +38,8 @@ function ServiceRow({ title, images }: { title: string; images: Home["services"]
       }}
       onMouseLeave={() => setI(0)}
     >
-      <div className="grid min-h-[180px] place-items-center rounded-[10px] border border-grey-03 bg-white text-body-l tablet:min-h-[434px]">{title}</div>
-      <div className="grid min-h-[260px] place-items-center rounded-[10px] bg-grey-03 tablet:min-h-[434px]">
+      <div className="grid min-h-[180px] place-items-center rounded-[10px] border border-grey-03 bg-white text-body-l tablet:min-h-[434px] desktop:min-h-[500px]">{title}</div>
+      <div className="grid min-h-[260px] place-items-center rounded-[10px] bg-grey-03 tablet:min-h-[434px] desktop:min-h-[500px]">
         <div className="relative aspect-[210/158] w-[min(210px,60%)] overflow-hidden rounded-[8px] border-2 border-white shadow-[0_1px_2px_rgba(0,0,0,.08)]">
           <AnimatePresence initial={false}>
             <motion.div key={i} className="absolute inset-0" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
@@ -38,14 +48,15 @@ function ServiceRow({ title, images }: { title: string; images: Home["services"]
           </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 export function Services({ title, left, right, services }: { title?: string; left?: string; right?: string; services: Home["services"] }) {
   return (
-    <section id="services" className="flex scroll-mt-24 flex-col gap-2.5">
-      <div className="relative flex min-h-[70svh] flex-col items-center justify-center rounded-[10px] bg-black px-5 text-white tablet:min-h-svh">
+    <section id="services" className="relative scroll-mt-24 py-2.5">
+      {/* Sticky dark panel; the service cards below scroll up over it. */}
+      <div className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden rounded-[10px] bg-black px-5 text-white">
         <Corners />
         <p className="absolute top-14 text-body-l">{title}</p>
         <div className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">
@@ -55,9 +66,11 @@ export function Services({ title, left, right, services }: { title?: string; lef
           <span>{right}</span>
         </div>
       </div>
-      {services.map((s) => (
-        <ServiceRow key={s._id} title={s.title} images={s.images} />
-      ))}
+      <div className="relative z-[1] flex flex-col gap-2.5 pb-[50px] pt-2.5">
+        {services.map((s) => (
+          <ServiceRow key={s._id} title={s.title} images={s.images} />
+        ))}
+      </div>
     </section>
   );
 }
