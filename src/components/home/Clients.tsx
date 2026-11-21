@@ -18,7 +18,7 @@ export function Clients({ clients }: { clients: Home["clients"] }) {
     return (
       <section className="grid grid-cols-2 gap-[5px] py-[5px] desktop:grid-cols-4" aria-label="Clients">
         {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="grid h-[70px] place-items-center rounded-[10px] bg-grey-03 px-6">
+          <div key={n} className="grid h-[70px] place-items-center rounded-[10px] bg-grey-03 px-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/placeholder-logos/logo-${n}.svg`} alt="" className="h-[30px] w-auto max-w-full" />
           </div>
@@ -32,12 +32,12 @@ export function Clients({ clients }: { clients: Home["clients"] }) {
       {columns.map((col, ci) => {
         const item = col.length ? col[(tick + ci) % col.length] : null;
         return (
-          <div key={ci} className="relative h-[70px] overflow-hidden rounded-[10px] bg-grey-03">
+          <div key={ci} className="relative h-[70px] overflow-hidden rounded-[10px] bg-grey-03 px-2.5">
             <AnimatePresence initial={false} mode="popLayout">
               {item && (
                 <motion.div
                   key={item._id + tick}
-                  className="absolute inset-0 grid place-items-center px-6"
+                  className="absolute inset-0 grid place-items-center px-2.5"
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: "-100%" }}

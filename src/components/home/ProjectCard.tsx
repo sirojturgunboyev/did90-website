@@ -22,10 +22,10 @@ export function ProjectCard({ project, href, size = "sm", invert = false }: { pr
   };
 
   return (
-    <Link href={href} className="group flex flex-col gap-2">
+    <Link href={href} className="group flex flex-col gap-[5px] pb-4">
       <div
         data-cursor="explore"
-        className={`relative overflow-hidden rounded-[8px] ${size === "lg" ? "aspect-[558/560]" : "aspect-[4/5]"} cursor-none`}
+        className="relative aspect-[0.94] cursor-none overflow-hidden rounded-[5px]"
         onPointerEnter={(e) => {
           if (e.pointerType !== "mouse") return;
           move(e);
@@ -69,7 +69,6 @@ export function ProjectCard({ project, href, size = "sm", invert = false }: { pr
       </div>
       <div className={`flex items-center justify-between text-small ${invert ? "text-white" : "text-black"}`}>
         <span>{project.title}</span>
-        {size === "lg" && project.category && <span className="text-grey-01">{project.category}</span>}
       </div>
     </Link>
   );

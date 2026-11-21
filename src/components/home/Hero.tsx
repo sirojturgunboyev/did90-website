@@ -8,18 +8,19 @@ const Lanyard = dynamic(() => import("./Lanyard"), { ssr: false });
 export function Hero({ title, tagline, cardImage, strapImage }: { title: string; tagline: string; cardImage?: string | null; strapImage?: string | null }) {
   return (
     <section className="relative -mx-2.5 h-svh min-h-[600px] overflow-hidden bg-white tablet:-mx-5">
-      <div className="absolute inset-0 z-[2]">
+      {/* Framer: Lanyard instance is a fixed 1080px-tall canvas pinned to the top, so the card keeps the same size on any screen height */}
+      <div className="absolute inset-x-0 top-0 z-[2] h-[1080px]">
         <Lanyard cardImage={cardImage} strapImage={strapImage} />
       </div>
-      {/* difference blend: black on white, white over the dark badge */}
-      <header className="pointer-events-none relative z-[4] flex h-full flex-col items-center justify-center px-6 text-white mix-blend-difference">
+      {/* Framer: plain white text above the canvas — it only shows where it overlaps the dark card */}
+      <header className="pointer-events-none relative z-[4] flex h-full flex-col items-center justify-center px-6 text-white">
         <h1 className="flex items-start gap-1">
           <CharReveal text={title} className="text-h1" />
           <motion.span
             className="display text-[18px] font-light leading-[2.3em]"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 + 0.1 + title.length * 0.04 }}
+            transition={{ type: "spring", duration: 0.5, bounce: 0, delay: 0.5 }}
           >
             °
           </motion.span>

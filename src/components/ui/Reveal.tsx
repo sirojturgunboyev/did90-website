@@ -18,7 +18,7 @@ export function Reveal({ children, delay = 0, y = 20, blur = 10, ...rest }: HTML
   );
 }
 
-/** Character-by-character entrance (hero title). */
+/** Character-by-character entrance (hero title): Framer text effect, start delay 0.5s, 0.1s per character. */
 export function CharReveal({ text, delay = 0.5, className }: { text: string; delay?: number; className?: string }) {
   return (
     <span className={className} aria-label={text}>
@@ -29,7 +29,7 @@ export function CharReveal({ text, delay = 0.5, className }: { text: string; del
           className="inline-block whitespace-pre"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", duration: 0.5, bounce: 0, delay: delay + 0.1 + i * 0.04 }}
+          transition={{ type: "spring", duration: 0.5, bounce: 0, delay: delay + i * 0.1 }}
         >
           {ch}
         </motion.span>
