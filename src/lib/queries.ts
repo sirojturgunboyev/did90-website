@@ -71,6 +71,7 @@ export type Home = {
   whyDelivering?: string;
   whyChartTitle?: string;
   whyChartSubtitle?: string;
+  whyClientsCount?: string;
   whyClientsLabel?: string;
   faqTitle?: string;
   faqSubtitle?: string;
@@ -102,7 +103,7 @@ export const getHome = (lang: Locale) =>
       "whyTitle": ${L("whyTitle")}, "whyTitleMuted": ${L("whyTitleMuted")}, whyImage1, whyImage2,
       "whyStatuses": whyStatuses[]{"label": ${L("label")}, count, color},
       "whyDelivering": ${L("whyDelivering")}, "whyChartTitle": ${L("whyChartTitle")},
-      "whyChartSubtitle": ${L("whyChartSubtitle")}, "whyClientsLabel": ${L("whyClientsLabel")},
+      "whyChartSubtitle": ${L("whyChartSubtitle")}, "whyClientsLabel": ${L("whyClientsLabel")}, whyClientsCount,
       "faqTitle": ${L("faqTitle")}, "faqSubtitle": ${L("faqSubtitle")}, "faqAside": ${L("faqAside")},
       "contactLines": contactLines[]{"v": ${L("@")}}.v, "contactNote": ${L("contactNote")},
       contactImageLeft, contactImageRight,

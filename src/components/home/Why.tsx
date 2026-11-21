@@ -217,7 +217,8 @@ export function Why({ lang, data, clients }: { lang: Locale; data: Home; clients
                 <Avatar key={a._id} client={a} />
               ))}
             </div>
-            <span className={`${body} pl-1`}>{data.whyClientsLabel}</span>
+            {data.whyClientsCount && <span className={`${body} pl-1`}>{data.whyClientsCount}</span>}
+            <span className={`${body} ${data.whyClientsCount ? "" : "pl-1"}`}>{data.whyClientsLabel}</span>
           </div>
         </div>
       </div>

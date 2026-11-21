@@ -127,6 +127,7 @@ export const homePage = defineType({
     ls("whyDelivering", "Lottie yonidagi yozuv", "why"),
     ls("whyChartTitle", "Grafik sarlavhasi", "why"),
     ls("whyChartSubtitle", "Grafik izohi", "why"),
+    defineField({ name: "whyClientsCount", title: "Mijozlar soni (masalan 100+)", type: "string", group: "why" }),
     ls("whyClientsLabel", "Mijozlar yozuvi", "why"),
     ls("faqTitle", "Sarlavha", "faq"),
     ls("faqSubtitle", "Sarlavha (kulrang)", "faq"),
