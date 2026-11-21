@@ -9,29 +9,6 @@ import { localePath, type Locale } from "@/i18n/config";
 
 type NavDict = { about: string; projects: string; services: string; process: string; blog: string; contact: string; menu: string; close: string; contactUs: string };
 
-function Clock() {
-  const [now, setNow] = useState<string>("");
-  useEffect(() => {
-    const fmt = () =>
-      new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Tashkent" }).format(new Date());
-    const first = setTimeout(() => setNow(fmt()), 0);
-    const id = setInterval(() => setNow(fmt()), 10_000);
-    return () => {
-      clearTimeout(first);
-      clearInterval(id);
-    };
-  }, []);
-  return (
-    <span className="flex items-center gap-[5px] tabular-nums" suppressHydrationWarning>
-      {now || " "}
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="8" cy="8" r="6.5" stroke="currentColor" />
-        <path d="M8 4.5V8h3" stroke="currentColor" strokeLinecap="round" />
-      </svg>
-    </span>
-  );
-}
-
 export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ticker: string[] }) {
   const [open, setOpen] = useState(false);
   const home = localePath(lang, "/");
@@ -62,7 +39,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
   const collapsed = scrolled && !open;
   const spring = { type: "spring" as const, stiffness: 500, damping: 60, mass: 1 };
 
-  // Sizes follow the Framer "Navbar" component: 915px wide, 5/10px padding, radius 10, Grey 03 + 12px blur.
+  // Sizes follow the Framer "Navbar" component (clock removed on purpose): 915px wide, 5/10px padding, radius 10, Grey 03 + 12px blur.
   return (
     <header className="pointer-events-none fixed inset-x-0 top-5 z-50 flex justify-center px-4">
       <motion.nav
@@ -101,7 +78,7 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
           {/* Left: logo … ticker badge | divider | clock */}
           <div className="flex min-w-0 flex-1 items-center gap-[3px]">
             <Logo href={home} className="mr-auto shrink-0 pl-1" />
-            <div className="hidden min-w-0 items-center gap-[3px] desktop:flex">
+            <div className="hidden min-w-0 items-center desktop:flex">
               <div className="relative h-7 w-[260px] min-w-[120px] shrink overflow-hidden rounded-[10px] bg-white text-nav-s text-grey-01 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
                 <div className="flex h-full items-center">
                   <Ticker duration={18} gap={10}>
@@ -114,10 +91,6 @@ export function Navbar({ lang, dict, ticker }: { lang: Locale; dict: NavDict; ti
                   </Ticker>
                 </div>
               </div>
-              <span className="h-[27px] w-[5px] shrink-0 rounded-[10px] bg-grey-02" aria-hidden />
-              <span className="shrink-0 rounded-[10px] bg-white px-2.5 py-1.5 text-nav-m">
-                <Clock />
-              </span>
             </div>
           </div>
 
