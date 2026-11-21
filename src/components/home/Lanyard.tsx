@@ -228,7 +228,9 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
       const t = ref.current!.translation();
       const prev = (lerped.current[key] ??= new THREE.Vector3(t.x, t.y, t.z));
       const dist = Math.max(0.1, Math.min(1, prev.distanceTo(t as THREE.Vector3)));
-      prev.lerp(t as THREE.Vector3, delta * (10 + dist * 40));
+      // Clamp the factor: with a long frame (tab throttled, slow device) delta·k > 1 overshoots and the smoothed
+      // point oscillates off to infinity — that was the endless flicker at the clasp.
+      prev.lerp(t as THREE.Vector3, Math.min(1, delta * (10 + dist * 40)));
     }
     curve.points[0].copy(j3.current.translation() as THREE.Vector3);
     curve.points[1].copy(lerped.current.j2);
@@ -237,7 +239,6 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
     band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
     // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
     const res = band.current.material.resolution;
-    (window as unknown as { __lanyard?: unknown }).__lanyard = { card: card.current, j1: j1.current, j2: j2.current, j3: j3.current, curve };
     if (res.x !== state.size.width || res.y !== state.size.height) res.set(state.size.width, state.size.height);
 
     // Keep the card facing the camera
