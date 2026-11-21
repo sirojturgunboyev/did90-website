@@ -47,10 +47,23 @@ export function FadeIn({ children, className }: { children: React.ReactNode; cla
   );
 }
 
-/** Slow rise from `y` px to 0 when in view (Framer "style transform on in-view"). */
+/** Container that triggers its <Rise> children when it enters the view (children may start clipped/off-screen). */
+export function RiseGroup({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div className={className} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0 }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Slow rise from `y` px to 0 (Framer "style transform on in-view"); driven by the parent RiseGroup. */
 export function Rise({ children, y, duration, bounce = 0, className, style }: { children: React.ReactNode; y: number; duration: number; bounce?: number; className?: string; style?: React.CSSProperties }) {
   return (
-    <motion.div className={className} style={style} initial={{ y }} whileInView={{ y: 0 }} viewport={{ once: true, amount: 0 }} transition={{ type: "spring", duration, bounce }}>
+    <motion.div
+      className={className}
+      style={style}
+      variants={{ hidden: { y }, show: { y: 0, transition: { type: "spring", duration, bounce } } }}
+    >
       {children}
     </motion.div>
   );

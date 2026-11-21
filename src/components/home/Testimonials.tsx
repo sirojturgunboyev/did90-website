@@ -1,5 +1,5 @@
 import { SanityImg } from "../ui/SanityImg";
-import { Reveal, Rise } from "../ui/Reveal";
+import { Reveal, Rise, RiseGroup } from "../ui/Reveal";
 import type { Home } from "@/lib/queries";
 
 /* Column offsets reproduce the stepped "U" collage from the template */
@@ -19,7 +19,7 @@ export function Testimonials({ title, clients, testimonials }: { title?: string;
     <section className="flex flex-col items-center gap-16 py-[100px]">
       <div className="relative flex w-full flex-col items-center">
         {photos.length > 0 && (
-          <div className="flex justify-center gap-[7px] overflow-hidden">
+          <RiseGroup className="flex justify-center gap-[7px] overflow-hidden">
             {columns.map((col, ci) => (
               <Rise key={ci} y={RISE[ci]} duration={DUR[ci]} bounce={ci >= 7 ? 0.2 : 0} className={`flex-col gap-[10px] ${ci >= 7 || ci <= 1 ? "hidden tablet:flex" : "flex"}`} style={{ paddingTop: OFFSETS[ci] }}>
                 {col.slice(0, 2).map((c) => (
@@ -27,7 +27,7 @@ export function Testimonials({ title, clients, testimonials }: { title?: string;
                 ))}
               </Rise>
             ))}
-          </div>
+          </RiseGroup>
         )}
         <Reveal className="-mt-[100px] px-4 text-center">
           <h2 className="text-h1">{title}</h2>
