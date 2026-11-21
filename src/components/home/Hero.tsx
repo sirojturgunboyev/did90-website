@@ -8,12 +8,12 @@ const Lanyard = dynamic(() => import("./Lanyard"), { ssr: false });
 export function Hero({ title, tagline, cardImage, strapImage }: { title: string; tagline: string; cardImage?: string | null; strapImage?: string | null }) {
   return (
     <section className="relative -mx-2.5 h-[844px] overflow-hidden bg-white tablet:-mx-5 tablet:h-[1080px] desktop:h-svh desktop:min-h-[600px]">
-      {/* Framer: Phone section is 844px and Tablet 1080px with the canvas filling it; Desktop pins a 1080px canvas to the top */}
-      <div className="absolute inset-0 z-[2] desktop:bottom-auto desktop:h-[1080px]">
+      {/* Framer: the canvas fills the section (Desktop 100vh, Tablet 1080px, Phone 844px), so the card scales with the screen height */}
+      <div className="absolute inset-0 z-[2]">
         <Lanyard cardImage={cardImage} strapImage={strapImage} />
       </div>
       {/* Plain white text above the canvas, centred on the same box as the canvas so it always lands on the card */}
-      <header className="pointer-events-none absolute inset-0 z-[4] flex flex-col items-center justify-center px-6 text-white desktop:bottom-auto desktop:h-[1080px]">
+      <header className="pointer-events-none absolute inset-0 z-[4] flex flex-col items-center justify-center px-6 text-white">
         <h1 className="flex items-start gap-1">
           <CharReveal text={title} className="text-h1" />
           <motion.span
