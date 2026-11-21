@@ -12,8 +12,8 @@ export function Hero({ title, tagline, cardImage, strapImage }: { title: string;
       <div className="absolute inset-0 z-[2] desktop:bottom-auto desktop:h-[1080px]">
         <Lanyard cardImage={cardImage} strapImage={strapImage} />
       </div>
-      {/* Framer: plain white text above the canvas — it only shows where it overlaps the dark card */}
-      <header className="pointer-events-none relative z-[4] flex h-full flex-col items-center justify-center px-6 text-white">
+      {/* Plain white text above the canvas, centred on the same box as the canvas so it always lands on the card */}
+      <header className="pointer-events-none absolute inset-0 z-[4] flex flex-col items-center justify-center px-6 text-white desktop:bottom-auto desktop:h-[1080px]">
         <h1 className="flex items-start gap-1">
           <CharReveal text={title} className="text-h1" />
           <motion.span
