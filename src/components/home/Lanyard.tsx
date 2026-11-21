@@ -7,7 +7,7 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, extend, useFrame, type ThreeElement } from "@react-three/fiber";
-import { Environment, Lightformer, RoundedBox, useTexture } from "@react-three/drei";
+import { Environment, Lightformer, useTexture } from "@react-three/drei";
 import {
   BallCollider,
   CuboidCollider,
@@ -104,7 +104,7 @@ function makeFallbackTexture() {
 /** Flat rounded rectangle with 0..1 UVs, used for the printed faces of the card. */
 function useFaceGeometry() {
   return useMemo(() => {
-    const w = CARD_W, h = CARD_H, r = 0.09;
+    const w = CARD_W, h = CARD_H, r = 0.16;
     const shape = new THREE.Shape();
     shape.moveTo(-w / 2 + r, -h / 2);
     shape.lineTo(w / 2 - r, -h / 2);
@@ -123,7 +123,9 @@ function useFaceGeometry() {
       uv[i * 2 + 1] = (pos.getY(i) + h / 2) / h;
     }
     geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-    return geo;
+    const body = new THREE.ExtrudeGeometry(shape, { depth: CARD_D, bevelEnabled: false, curveSegments: 12 });
+    body.translate(0, 0, -CARD_D / 2);
+    return { face: geo, body };
   }, []);
 }
 
@@ -160,7 +162,7 @@ function Clasp() {
 function CardFace({ url }: { url?: string | null }) {
   const tex = useMemo(() => (url ? null : makeFallbackTexture()), [url]);
   if (url) return <LoadedFace url={url} />;
-  return <meshStandardMaterial map={tex!} roughness={0.55} metalness={0} />;
+  return <meshBasicMaterial map={tex!} toneMapped={false} />;
 }
 
 function LoadedFace({ url }: { url: string }) {
@@ -169,7 +171,7 @@ function LoadedFace({ url }: { url: string }) {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 8;
   });
-  return <meshStandardMaterial map={map} roughness={0.55} metalness={0} />;
+  return <meshBasicMaterial map={map} toneMapped={false} />;
 }
 
 function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strapColor">> & Pick<Props, "cardImage" | "strapImage">) {
@@ -194,7 +196,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
   const [isWide, setIsWide] = useState(true);
-  const face = useFaceGeometry();
+  const { face, body } = useFaceGeometry();
 
   const strapTexture = useMemo(() => {
     if (!strapImage) return null;
@@ -282,14 +284,14 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
             }}
           >
             {/* card body (thin, matte) */}
-            <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={0.008} smoothness={2}>
-              <meshStandardMaterial color="#0e0e0e" roughness={0.7} />
-            </RoundedBox>
+            <mesh geometry={body}>
+              <meshBasicMaterial color="#0a0a0a" />
+            </mesh>
             <mesh geometry={face} position={[0, 0, CARD_D / 2 + 0.001]}>
               <CardFace url={cardImage} />
             </mesh>
             <mesh geometry={face} position={[0, 0, -CARD_D / 2 - 0.001]} rotation={[0, Math.PI, 0]}>
-              <meshStandardMaterial color="#141414" roughness={0.7} />
+              <meshBasicMaterial color="#111111" />
             </mesh>
             {/* punched hole for the hook */}
             <mesh position={[0, CARD_H / 2 - 0.1, CARD_D / 2 + 0.002]}>
