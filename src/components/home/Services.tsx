@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { Home } from "@/lib/queries";
 
@@ -54,20 +54,26 @@ function ServiceRow({ title, images }: { title: string; images: Home["services"]
 }
 
 export function Services({ title, left, right, services }: { title?: string; left?: string; right?: string; services: Home["services"] }) {
+  // Hide the panel texts for good once the first card reaches the middle row (they reappear only when scrolling back above it).
+  const cards = useRef<HTMLDivElement>(null);
+  const [covered, setCovered] = useState(false);
+  const { scrollYProgress } = useScroll({ target: cards, offset: ["start end", "start center"] });
+  useMotionValueEvent(scrollYProgress, "change", (v) => setCovered(v >= 0.98));
+  const fade = { animate: { opacity: covered ? 0 : 1 }, transition: { duration: 0.3 } };
   return (
     <section id="services" className="relative scroll-mt-24 py-2.5">
       {/* Sticky dark panel; the service cards below scroll up over it. */}
       <div data-cursor="dot" className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden rounded-[10px] bg-black px-5 text-white">
         <Corners />
-        <p className="absolute top-5 text-body-l">{title}</p>
-        <div className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">
+        <motion.p {...fade} className="absolute top-5 text-body-l">{title}</motion.p>
+        <motion.div {...fade} className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">
           <span>{left}</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/did90-mark.png" alt="" aria-hidden width={28} height={28} className="size-7" />
           <span>{right}</span>
-        </div>
+        </motion.div>
       </div>
-      <div className="relative z-[1] flex flex-col gap-2.5 pb-[50px] pt-2.5">
+      <div ref={cards} className="relative z-[1] flex flex-col gap-2.5 pb-[50px] pt-2.5">
         {services.map((s) => (
           <ServiceRow key={s._id} title={s.title} images={s.images} />
         ))}
