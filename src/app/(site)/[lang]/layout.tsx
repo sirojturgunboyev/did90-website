@@ -30,6 +30,14 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
       languages: Object.fromEntries(locales.map((l) => [l, localePath(l, "/")])),
     },
     openGraph: { siteName: title, locale: lang, type: "website" },
+    // Light browser theme → dark mark, dark theme → white mark.
+    icons: {
+      icon: [
+        { url: "/favicon/light.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
+        { url: "/favicon/dark.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+      ],
+      apple: "/favicon/light.png",
+    },
   };
 }
 
