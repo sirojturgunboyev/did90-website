@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import { SanityImg } from "../ui/SanityImg";
 import type { Home } from "@/lib/queries";
 
@@ -16,14 +16,54 @@ function Corners() {
   );
 }
 
-function ServiceRow({ title, images }: { title: string; images: Home["services"][number]["images"] }) {
-  const [i, setI] = useState(0);
+/* Framer "Hover Card": white 3px frame, 240×160 image; five hover zones stack images 2–5 on top (instant, no transition);
+   overlay images are 393×288, anchored bottom-right inside the frame. */
+function HoverCard({ title, images }: { title: string; images: Home["services"][number]["images"] }) {
   const list = images?.length ? images : [null];
-  // Framer: each card scrolls up over the sticky dark panel and shrinks to 0.9 as it reaches the viewport middle.
+  const [shown, setShown] = useState(0); // how many overlay images are visible
+  const overlays = list.slice(1, 5);
+  return (
+    <div
+      className="relative rounded-[10px] bg-white p-[3px] shadow-[inset_0_1.5px_0_rgba(255,255,255,.07),0_1px_0_1px_rgba(255,255,255,.05)]"
+      onMouseLeave={() => setShown(0)}
+    >
+      <div className="relative h-[160px] w-[240px] overflow-hidden rounded-[10px]">
+        <SanityImg image={list[0]} alt={title} width={500} sizes="240px" className="absolute inset-0 size-full object-cover" />
+        {overlays.map((img, k) => (
+          <SanityImg
+            key={k}
+            image={img}
+            alt=""
+            width={800}
+            sizes="393px"
+            className={`absolute bottom-0 right-0 z-[1] h-[288px] w-[393px] max-w-none object-cover ${k < shown ? "opacity-100" : "opacity-0"}`}
+          />
+        ))}
+      </div>
+      <div className="absolute bottom-0 right-0 z-[3] flex h-full w-full">
+        {[0, 1, 2, 3, 4].map((z) => (
+          <span key={z} className="h-full flex-1" onMouseEnter={() => setShown(Math.min(z, overlays.length))} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ServiceRow({ title, images }: { title: string; images: Home["services"][number]["images"] }) {
+  // Framer: each card scrolls up over the sticky dark panel; it stays full width while it covers the panel's middle row,
+  // then shrinks to 0.9 once its top passes the viewport middle.
   const ref = useRef<HTMLDivElement>(null);
-  // Stays full width while it covers the panel's middle row, then shrinks once its top passes the viewport middle.
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start center", "start start"] });
   const scale = useTransform(scrollYProgress, [0, 0.45], [1, 0.9]);
+  // "Hover me" cursor pill over the image half (Framer Main - Cursor / Hover me)
+  const [hover, setHover] = useState(false);
+  const cx = useMotionValue(0);
+  const cy = useMotionValue(0);
+  const move = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    cx.set(e.clientX - r.left);
+    cy.set(e.clientY - r.top);
+  };
   return (
     <motion.div
       ref={ref}
@@ -33,21 +73,35 @@ function ServiceRow({ title, images }: { title: string; images: Home["services"]
       viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.7, delay: 0.3, ease: [0.44, 0, 0.56, 1] }}
       className="grid gap-2.5 tablet:grid-cols-2"
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        setI(Math.min(list.length - 1, Math.floor(((e.clientX - r.left) / r.width) * list.length)));
-      }}
-      onMouseLeave={() => setI(0)}
     >
-      <div className="grid min-h-[180px] place-items-center rounded-[10px] border border-grey-03 bg-white text-body-l tablet:min-h-[434px] desktop:min-h-[500px]">{title}</div>
-      <div className="grid min-h-[260px] place-items-center rounded-[10px] bg-grey-03 tablet:min-h-[434px] desktop:min-h-[500px]">
-        <div className="relative aspect-[210/158] w-[min(210px,60%)] overflow-hidden rounded-[8px] border-2 border-white shadow-[0_1px_2px_rgba(0,0,0,.08)]">
-          <AnimatePresence initial={false}>
-            <motion.div key={i} className="absolute inset-0" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
-              <SanityImg image={list[i]} alt={title} width={500} sizes="210px" className="size-full object-cover" />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      <div className="grid min-h-[180px] place-items-center rounded-[10px] border border-grey-03 bg-white text-body tablet:min-h-[400px] desktop:min-h-[500px]">{title}</div>
+      <div
+        data-cursor="explore"
+        className="relative grid min-h-[260px] cursor-none place-items-center overflow-hidden rounded-[10px] bg-grey-03 tablet:min-h-[400px] desktop:min-h-[498px]"
+        onPointerEnter={(e) => {
+          if (e.pointerType !== "mouse") return;
+          move(e);
+          setHover(true);
+        }}
+        onPointerMove={(e) => e.pointerType === "mouse" && move(e)}
+        onPointerLeave={() => setHover(false)}
+      >
+        <HoverCard title={title} images={images} />
+        <AnimatePresence>
+          {hover && (
+            <motion.span aria-hidden className="pointer-events-none absolute left-0 top-0 z-10" style={{ x: cx, y: cy }}>
+              <motion.span
+                className="block -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-white/40 px-[14px] py-[7px] text-[11px] leading-[1.2] text-black backdrop-blur-[30px]"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 60, mass: 1 }}
+              >
+                Hover me
+              </motion.span>
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
