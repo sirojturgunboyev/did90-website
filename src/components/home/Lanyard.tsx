@@ -20,12 +20,6 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { LOGO_PATHS } from "./logoPaths";
 
-// Strap width = 14% of the card width at any window size. With the line resolution set to the canvas size,
-// strap px = lineWidth·H/(2·d) and card px = 1.6·H/(2·d·tan10°) (fov 20, card 1.6 units wide),
-// so the ratio is lineWidth·tan10°/1.6 and does not depend on the window.
-const STRAP_RATIO = 0.14;
-const STRAP_LINE_WIDTH = (STRAP_RATIO * 1.6) / Math.tan((10 * Math.PI) / 180);
-
 extend({ MeshLineGeometry, MeshLineMaterial });
 declare module "@react-three/fiber" {
   interface ThreeElements {
@@ -160,7 +154,7 @@ function useCardTexture(frontUrl?: string | null) {
 }
 
 function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strapColor">> & Pick<Props, "cardImage" | "strapImage">) {
-    const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
+  const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
   const fixed = useRef<RapierRigidBody>(null);
   const j1 = useRef<RapierRigidBody>(null);
   const j2 = useRef<RapierRigidBody>(null);
@@ -228,25 +222,18 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
       const t = ref.current!.translation();
       const prev = (lerped.current[key] ??= new THREE.Vector3(t.x, t.y, t.z));
       const dist = Math.max(0.1, Math.min(1, prev.distanceTo(t as THREE.Vector3)));
-      // Clamp the factor: with a long frame (tab throttled, slow device) delta·k > 1 overshoots and the smoothed
-      // point oscillates off to infinity — that was the endless flicker at the clasp.
-      prev.lerp(t as THREE.Vector3, Math.min(1, delta * (10 + dist * 40)));
+      prev.lerp(t as THREE.Vector3, delta * (10 + dist * 40));
     }
     curve.points[0].copy(j3.current.translation() as THREE.Vector3);
     curve.points[1].copy(lerped.current.j2);
     curve.points[2].copy(lerped.current.j1);
     curve.points[3].copy(fixed.current.translation() as THREE.Vector3);
     band.current.geometry.setPoints(curve.getPoints(isWide ? 32 : 16));
-    // Template sets the line resolution to the canvas size; without it the strap renders ~2× too wide.
-    const res = band.current.material.resolution;
-    if (res.x !== state.size.width || res.y !== state.size.height) res.set(state.size.width, state.size.height);
 
     // Keep the card facing the camera
     ang.copy(card.current.angvel() as THREE.Vector3);
     rot.copy(card.current.rotation() as unknown as THREE.Vector3);
-    // Only while awake, and without waking it: once settled the whole rope falls asleep and stays perfectly still.
-    // Dragging wakes the bodies again (wakeUp above), so interaction is unchanged.
-    if (!card.current.isSleeping()) card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, false);
+    card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
   });
 
   return (
@@ -290,7 +277,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           </group>
         </RigidBody>
       </group>
-      <mesh ref={band} frustumCulled={false}>
+      <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
           color={strapTexture ? "white" : strapColor}
@@ -298,7 +285,7 @@ function Band({ cardImage, strapImage, strapColor }: Required<Pick<Props, "strap
           useMap={strapTexture ? 1 : 0}
           map={strapTexture ?? undefined}
           repeat={[-4, 1]}
-          lineWidth={STRAP_LINE_WIDTH}
+          lineWidth={1}
         />
       </mesh>
     </>
