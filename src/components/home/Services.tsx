@@ -50,9 +50,8 @@ export function Services({ title, left, right, services }: { title?: string; lef
         <p className="absolute top-14 text-body-l">{title}</p>
         <div className="flex w-full flex-col items-center gap-6 text-body-l tablet:flex-row tablet:justify-between">
           <span>{left}</span>
-          <span className="display text-[22px]" aria-hidden>
-            ✺
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/did90-mark.png" alt="" aria-hidden width={28} height={28} className="size-7" />
           <span>{right}</span>
         </div>
       </div>
